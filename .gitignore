@@ -1,0 +1,21 @@
+# Ignora entorno virtual
+venv/
+.env
+
+# Archivos de cache y compilados
+__pycache__/
+*.py[cod]
+*.sqlite3
+
+# Archivos de entorno o configuración
+*.log
+*.pot
+*.pyc
+
+# Config de VSCode o PyCharm
+.vscode/
+.idea/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db

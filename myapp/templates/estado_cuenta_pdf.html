@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Estado de cuenta</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 4px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h2>Estado de Cuenta - {{ mes_actual }}</h2>
+    <p><strong>Nombre:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+    <p><strong>Correo:</strong> {{ user.email }}</p>
+    <p><strong>Fecha de emisión:</strong> {{ fecha_emision }}</p>
+    <p><strong>Límite mensual:</strong> S/. {{ limite }}</p>
+    <p><strong>Total gastado:</strong> S/. {{ total_mes }}</p>
+
+    <hr>
+
+    <h3>Detalle de Gastos</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Categoría</th>
+                <th>Tienda/Servicio</th>
+                <th>Monto (S/.)</th>
+                <th>Método de Pago</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for gasto in gastos %}
+            <tr>
+                <td>{{ gasto.date }}</td>
+                <td>{{ gasto.get_category_display }}</td>
+                <td>{{ gasto.store_name }}</td>
+                <td>{{ gasto.amount }}</td>
+                <td>{{ gasto.payment_method }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

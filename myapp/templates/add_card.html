@@ -1,0 +1,7 @@
+<h2>Agregar tarjeta</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar tarjeta</button>
+</form>
+<a href="{% url 'profile' %}">← Volver al perfil</a>

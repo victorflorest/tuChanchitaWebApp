@@ -1,0 +1,47 @@
+<h2>Reporte de Gastos - {{ user.first_name }}</h2>
+
+<h3>Gasto por Categoría ({{ gastos_categoria.0.date|date:"F Y" }})</h3>
+<canvas id="categoriaChart"></canvas>
+
+<h3>Resumen Mensual</h3>
+<table border="1">
+    <tr>
+        <th>Mes</th>
+        <th>Total (S/.)</th>
+    </tr>
+    {% for mes, total in resumen_mensual %}
+    <tr>
+        <td>{{ mes }}</td>
+        <td>{{ total }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+<a href="{% url 'export_pdf' %}"><button>Exportar como PDF</button></a>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const categoriaData = {
+        labels: [{% for cat in gastos_categoria %}'{{ cat.category }}',{% endfor %}],
+        datasets: [{
+            label: 'Gasto por categoría',
+            data: [{% for cat in gastos_categoria %}{{ cat.total }},{% endfor %}],
+            backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#81C784'],
+        }]
+    };
+
+    new Chart(document.getElementById('categoriaChart'), {
+        type: 'bar',
+        data: categoriaData,
+        options: {
+            responsive: true
+        }
+    });
+</script>
+
+<a href="{% url 'dashboard' %}">
+    <button style="margin-top: 20px; background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
+        ← Volver al Dashboard
+    </button>
+</a>

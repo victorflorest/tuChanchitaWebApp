@@ -1,0 +1,22 @@
+<h2>Asistente Financiero Inteligente</h2>
+
+<div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+    <h4>Historial:</h4>
+    {% for item in historial %}
+        <p><strong>Tú:</strong> {{ item.pregunta }}</p>
+        <p><strong>Bot:</strong> {{ item.respuesta }}</p>
+        <hr>
+    {% endfor %}
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="mensaje" placeholder="Escribe tu pregunta..." required>
+    <button type="submit">Enviar</button>
+</form>
+
+<a href="{% url 'dashboard' %}">
+    <button style="margin-top: 20px; background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
+        ← Volver al Dashboard
+    </button>
+</a>

@@ -1,0 +1,14 @@
+<h2>Registrar nuevo gasto</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar gasto</button>
+</form>
+
+<a href="{% url 'profile' %}">← Volver al perfil</a>
+<a href="{% url 'dashboard' %}">
+    <button style="margin-top: 20px; background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
+        ← Volver al Dashboard
+    </button>
+</a>

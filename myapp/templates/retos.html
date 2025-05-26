@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Retos Gamificados</title>
+</head>
+<body>
+    <hr>
+<h3>🏆 Top 5 Usuarios con más puntos</h3>
+<table border="1" style="margin-top: 10px;">
+    <tr>
+        <th>Puesto</th>
+        <th>Nombre</th>
+        <th>Puntos</th>
+    </tr>
+    {% for u in top_users %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ u.first_name }} {{ u.last_name }}</td>
+        <td>{{ u.points }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+    <h2>🎯 Retos Gamificados</h2>
+
+    <h3>Disponibles</h3>
+    <form method="post">
+        {% csrf_token %}
+        {% for reto in retos %}
+            <div>
+                <strong>{{ reto.title }}</strong><br>
+                <small>{{ reto.description }}</small><br>
+                {% if reto.id in retos_unidos %}
+                    <em>✅ Ya unido</em>
+                {% else %}
+                    <button type="submit" name="reto_id" value="{{ reto.id }}">Unirme</button>
+                {% endif %}
+                <hr>
+            </div>
+        {% endfor %}
+    </form>
+
+    <h3>Mis Retos</h3>
+<ul>
+    {% for ur in retos_usuario %}
+        <li>
+            {{ ur.challenge.title }} -
+            {% if ur.completed %}
+                🏆 <strong>¡Completado!</strong> (+{{ ur.earned_points }} puntos)
+            {% elif ur.failed %}
+                ❌ <strong>Fallido</strong>
+            {% else %}
+                ⏳ En progreso
+
+                {% if ur.challenge.type == 'ahorro' %}
+                    <br><small>Progreso: S/{{ progreso_ahorro }} / 100</small>
+                    <div style="width: 100%; background-color: #ddd; height: 15px;">
+                        <div style="width: {{ progreso_ahorro|floatformat:0 }}%; background-color: #4caf50; height: 15px;"></div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+
+    <br>
+    <a href="{% url 'dashboard' %}">
+        <button>← Volver al Dashboard</button>
+    </a>
+</body>
+</html>

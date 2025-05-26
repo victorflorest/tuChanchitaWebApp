@@ -1,0 +1,27 @@
+
+<p><strong>Puntos acumulados:</strong> {{ user.points }}</p>
+
+<h3>Bienvenido, {{ user.first_name }}</h3>
+<p><strong>Email:</strong> {{ user.email }}</p>
+<p><strong>Límite mensual:</strong> S/. {{ user.monthly_limit }}</p>
+
+<a href="{% url 'update_limit' %}"><button>Actualizar límite mensual</button></a>
+
+<hr>
+
+<h3>Tarjetas Registradas</h3>
+<ul>
+    {% for card in cards %}
+        <li>{{ card.get_tipo_display }} - {{ card.banco }} ****{{ card.ultimos_4_digitos }} (Vence: {{ card.mes_vencimiento }}/{{ card.anio_vencimiento }})</li>
+    {% empty %}
+        <li>No tienes tarjetas registradas.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'add_card' %}"><button>Agregar nueva tarjeta</button></a>
+
+<a href="{% url 'dashboard' %}">
+    <button style="margin-top: 20px; background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
+        ← Volver al Dashboard
+    </button>
+</a>

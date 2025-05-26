@@ -1,0 +1,14 @@
+<h2>Reporte de Gastos - {{ user.first_name }} {{ user.last_name }}</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+    <tr>
+        <th>Mes</th>
+        <th>Total (S/.)</th>
+    </tr>
+    {% for mes, total in resumen_mensual %}
+    <tr>
+        <td>{{ mes }}</td>
+        <td>{{ total }}</td>
+    </tr>
+    {% endfor %}
+</table>

@@ -1,0 +1,23 @@
+<h2>Videos Recomendados sobre Finanzas</h2>
+
+{% for video in videos %}
+    <div style="margin-bottom: 40px;">
+        <h3>{{ video.titulo }}</h3>
+        <p>{{ video.descripcion }}</p>
+        <iframe width="560" height="315"
+                src="{{ video.url_video|cut:'watch?v='|add:'embed/' }}"
+                title="YouTube video"
+                frameborder="0"
+                allowfullscreen>
+        </iframe>
+        <hr>
+    </div>
+{% empty %}
+    <p>No hay recomendaciones por el momento.</p>
+{% endfor %}
+
+<a href="{% url 'dashboard' %}">
+    <button style="margin-top: 20px; background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
+        ← Volver al Dashboard
+    </button>
+</a>
