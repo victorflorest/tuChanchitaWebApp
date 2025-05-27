@@ -24,6 +24,8 @@
         <th>Valor actual</th>
         <th>Ganancia/Pérdida</th>
         <th>Fecha</th>
+        <th>Acción</th>
+
     </tr>
     {% for inv in inversiones %}
     <tr>
@@ -38,6 +40,12 @@
             {{ inv.profit_loss }}
         </td>
         <td>{{ inv.date }}</td>
+        <td>
+        <form action="{% url 'delete_investment' inv.id %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" onclick="return confirm('¿Estás seguro de que deseas eliminar esta inversión?');">Eliminar</button>
+        </form>
+        </td>
     </tr>
     {% endfor %}
 </table>

@@ -65,7 +65,7 @@ class Expense(models.Model):
     amount = models.FloatField()
     category = models.CharField(max_length=50, choices=CATEGORIAS)
     payment_method = models.ForeignKey('PaymentMethod', on_delete=models.SET_NULL, null=True)
-    date = models.DateField()
+    date = models.DateField(default=timezone.now)
     store_name = models.CharField(max_length=100)
 
     def __str__(self):

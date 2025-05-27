@@ -17,8 +17,8 @@ urlpatterns = [
     path('chatbot/', views.chatbot_view, name='chatbot'),
     path('inversiones/', views.investment_view, name='investments'),
     path('retos/', views.retos_view, name='retos'),
-
-
+    path('logout/', views.logout_view, name='logout'),
+    path('eliminar-inversion/<int:id>/', views.delete_investment_view, name='delete_investment'),
 
 
 ]
