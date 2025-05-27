@@ -1,17 +1,58 @@
 <h2>Videos Recomendados sobre Finanzas</h2>
 
 {% for video in videos %}
-    <div style="margin-bottom: 40px;">
-        <h3>{{ video.titulo }}</h3>
-        <p>{{ video.descripcion }}</p>
-        <iframe width="560" height="315"
-                src="{{ video.url_video|cut:'watch?v='|add:'embed/' }}"
-                title="YouTube video"
-                frameborder="0"
-                allowfullscreen>
-        </iframe>
-        <hr>
-    </div>
+    {% with video.url_video as url_video %}
+        {% if "youtu.be" in url_video %}
+            {% with url_video|slice:"17:" as video_id %}
+                <div style="margin-bottom: 40px;">
+                    <h3>{{ video.titulo }}</h3>
+                    <p>{{ video.descripcion }}</p>
+                    <iframe width="560" height="315"
+                            src="https://www.youtube.com/embed/{{ video_id }}"
+                            title="YouTube video" allow="accelerometer" frameborder="0"
+                            clipboard-write
+                            encrypted-media
+                            gyroscope
+                            picture-in-picture
+                            web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+                    </iframe>
+                    <hr>
+                </div>
+            {% endwith %}
+        {% elif "youtube.com/watch?v=" in url_video %}
+            {% with url_video|slice:"32:" as video_id %}
+                <div style="margin-bottom: 40px;">
+                    <h3>{{ video.titulo }}</h3>
+                    <p>{{ video.descripcion }}</p>
+                    <iframe width="560" height="315"
+                            src="https://www.youtube.com/embed/{{ video_id }}"
+                            title="YouTube video" allow="accelerometer" frameborder="0"
+                            clipboard-write
+                            encrypted-media
+                            gyroscope
+                            picture-in-picture
+                            web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+                    </iframe>
+                    <hr>
+                </div>
+            {% endwith %}
+        {% else %}
+            <div style="margin-bottom: 40px;">
+                <h3>{{ video.titulo }}</h3>
+                <p>{{ video.descripcion }}</p>
+                <iframe width="560" height="315"
+                        src="{{ video.url_video }}"
+                        title="YouTube video" allow="accelerometer" frameborder="0"
+                        clipboard-write
+                        encrypted-media
+                        gyroscope
+                        picture-in-picture
+                        web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+                </iframe>
+                <hr>
+            </div>
+        {% endif %}
+    {% endwith %}
 {% empty %}
     <p>No hay recomendaciones por el momento.</p>
 {% endfor %}
@@ -19,5 +60,5 @@
 <a href="{% url 'dashboard' %}">
     <button style="margin-top: 20px; background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
         ← Volver al Dashboard
-    </button>
+    </button>
 </a>
