@@ -26,22 +26,40 @@ from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 import io
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 from .models import (
     UserProfile, Expense, PaymentMethod, Challenge,
     UserChallenge, Investment, RecommendationVideo
 =======
+=======
+>>>>>>> Stashed changes
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth.models import User  # si usas el modelo de Django
 from .forms import LoginForm
 from .forms import UpdateLimitForm
+<<<<<<< Updated upstream
+=======
+from django.utils.timezone import now
+from datetime import datetime
+from django.shortcuts import render
+from django.utils import timezone
+from .models import UserProfile, UserChallenge
+from .models import TriviaQuestion, TriviaOption, TriviaRespuestaUsuario
+import random
+from .models import PreguntaTrivia, PuntajeTrivia
+from django.views.decorators.csrf import csrf_exempt
+>>>>>>> Stashed changes
 
 
 from .models import (
     UserProfile, Expense, PaymentMethod, Challenge,
     UserChallenge, Investment, RecommendationVideo, 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 )
 from .forms import ExpenseForm, PaymentMethodForm, RegisterForm, LoginForm, InvestmentForm
@@ -54,22 +72,34 @@ from openai import OpenAI
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 # ----------------- Autenticación -----------------
 =======
+=======
+>>>>>>> Stashed changes
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
 
 # ----------------- Autenticación -----------------
 from django.contrib.auth.hashers import make_password
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             user = form.save()
+=======
+            user = form.save(commit=False)
+            user.password = make_password(form.cleaned_data['password'])  # Hash seguro
+            user.save()
+>>>>>>> Stashed changes
 =======
             user = form.save(commit=False)
             user.password = make_password(form.cleaned_data['password'])  # Hash seguro
@@ -82,6 +112,10 @@ def register_view(request):
     return render(request, 'register.html', {'form': form})
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
@@ -91,6 +125,7 @@ def login_view(request):
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
             try:
                 user = UserProfile.objects.get(email=email, password=password)
@@ -103,6 +138,8 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 =======
+=======
+>>>>>>> Stashed changes
 
             try:
                 user = UserProfile.objects.get(email=email)
@@ -121,6 +158,9 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 def logout_view(request):
     request.session.flush()
@@ -129,10 +169,23 @@ def logout_view(request):
 # ----------------- Dashboard -----------------
 def dashboard_view(request):
     user = UserProfile.objects.get(id=request.session['user_id'])
+<<<<<<< Updated upstream
     ultimos_gastos = Expense.objects.filter(
         user=user,
         date__month=date.today().month,
         date__year=date.today().year
+=======
+    hoy = now()
+    inicio_mes = hoy.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    if hoy.month == 12:
+        fin_mes = hoy.replace(year=hoy.year + 1, month=1, day=1)
+    else:
+        fin_mes = hoy.replace(month=hoy.month + 1, day=1)
+
+    ultimos_gastos = Expense.objects.filter(
+        user=user,
+        date__range=(inicio_mes, fin_mes)
+>>>>>>> Stashed changes
     ).order_by('-date')[:10]
 
     total_gastado = ultimos_gastos.aggregate(Sum('amount'))['amount__sum'] or 0
@@ -160,8 +213,12 @@ def profile_view(request):
 
 # Formulario para actualizar el límite
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 class UpdateLimitForm(forms.Form):
     nuevo_limite = forms.FloatField(label="Nuevo límite mensual", min_value=0)
+=======
+
+>>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
@@ -204,6 +261,7 @@ def add_card_view(request):
 def register_expense_view(request):
     user = UserProfile.objects.get(id=request.session['user_id'])
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
         if form.is_valid():
@@ -218,12 +276,15 @@ def register_expense_view(request):
     tarjetas = PaymentMethod.objects.filter(user=user)
     form.fields['payment_method'].queryset = tarjetas
 =======
+=======
+>>>>>>> Stashed changes
 
     if request.method == 'POST':
         form = ExpenseForm(request.POST, user=user)
         if form.is_valid():
             gasto = form.save(commit=False)
             gasto.user = user
+<<<<<<< Updated upstream
             gasto.date = timezone.now().date()
             gasto.save()
             return redirect('dashboard')
@@ -234,6 +295,19 @@ def register_expense_view(request):
     return render(request, 'register_expense.html', {
         'form': form
     })
+=======
+            gasto.date = timezone.now()  # usa datetime completo
+            gasto.save()
+
+            # Verifica y actualiza retos después del gasto
+            actualizar_retos_usuario(user)
+
+            return redirect('dashboard')
+    else:
+        form = ExpenseForm(user=user)
+
+    return render(request, 'register_expense.html', {'form': form})
+>>>>>>> Stashed changes
 
 # ----------------- Reportes -----------------
 def reports_view(request):
@@ -383,6 +457,7 @@ def delete_investment_view(request, id):
 
 
 # ----------------- Retos -----------------
+<<<<<<< Updated upstream
 def retos_view(request):
     user = UserProfile.objects.get(id=request.session['user_id'])
     retos_disponibles = Challenge.objects.all()
@@ -400,17 +475,134 @@ def retos_view(request):
                 date__range=[uc.start_date, date.today()]
             ).aggregate(Sum('amount'))['amount__sum'] or 0
             progreso_ahorro = total_ahorrado
+=======
+from datetime import timedelta, date
+from django.db.models import Sum
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import UserProfile, Challenge, UserChallenge, Expense
+
+def actualizar_retos_usuario(user):
+    retos_usuario = UserChallenge.objects.filter(user=user, completed=False, failed=False)
+
+    for uc in retos_usuario:
+        reto = uc.challenge
+        fecha_inicio = uc.start_date
+        fecha_fin = fecha_inicio + timedelta(days=reto.duration_days)
+
+        if reto.type == 'ahorro':
+            total_ahorrado = Expense.objects.filter(
+                user=user,
+                category__iexact='Ahorro',
+                date__range=[fecha_inicio, fecha_fin]
+            ).aggregate(Sum('amount'))['amount__sum'] or 0
+
+            if total_ahorrado >= reto.goal_amount:
+                uc.completed = True
+                uc.earned_points = reto.points
+                user.points += reto.points
+                user.save()
+                uc.save()
+            elif timezone.now() > fecha_fin:
+                uc.failed = True
+                uc.save()
+
+        elif reto.type == 'no_gastos':
+            total_gastado = Expense.objects.filter(
+                user=user,
+                date__range=[fecha_inicio, fecha_fin]
+            ).exclude(category__iexact='Ahorro').aggregate(Sum('amount'))['amount__sum'] or 0
+
+            if total_gastado > reto.goal_amount:
+                uc.failed = True
+                uc.save()
+            elif timezone.now() > fecha_fin:
+                uc.completed = True
+                uc.earned_points = reto.points
+                user.points += reto.points
+                user.save()
+                uc.save()
+
+
+def retos_view(request):
+    user = UserProfile.objects.get(id=request.session['user_id'])
+    retos_disponibles = Challenge.objects.filter(is_active=True).exclude(type='juego')
+    retos_usuario = UserChallenge.objects.filter(user=user)
+
+    retos_mostrar = []
+
+    for uc in retos_usuario:
+        reto = uc.challenge
+        fecha_inicio = uc.start_date
+        fecha_fin = fecha_inicio + timedelta(days=reto.duration_days)
+
+        if uc.completed or uc.failed:
+            continue
+
+        progreso = 0
+        color = '#4caf50'  # verde por defecto
+
+        if reto.type == 'ahorro':
+            total_ahorrado = Expense.objects.filter(
+                user=user,
+                category__iexact='Ahorro',
+                date__range=[fecha_inicio, fecha_fin]
+            ).aggregate(Sum('amount'))['amount__sum'] or 0
+
+            progreso = int(min((total_ahorrado / reto.goal_amount) * 100, 100)) if reto.goal_amount else 0
+            if total_ahorrado >= reto.goal_amount:
+                uc.completed = True
+                uc.earned_points = reto.points
+                user.points += reto.points
+                user.save()
+                uc.save()
+                continue
+            elif timezone.now() > fecha_fin:
+                uc.failed = True
+                uc.save()
+                continue
+
+        elif reto.type == 'no_gastos':
+            total_gastos = Expense.objects.filter(
+                user=user,
+                date__range=[fecha_inicio, fecha_fin]
+            ).exclude(category__iexact='Ahorro').aggregate(Sum('amount'))['amount__sum'] or 0
+
+            progreso = int(min((total_gastos / reto.goal_amount) * 100, 100)) if reto.goal_amount else 0
+            color = '#ef4444' if total_gastos > 0 else '#4caf50'
+            if total_gastos > reto.goal_amount:
+                uc.failed = True
+                uc.save()
+                continue
+            elif timezone.now() > fecha_fin:
+                uc.completed = True
+                uc.earned_points = reto.points
+                user.points += reto.points
+                user.save()
+                uc.save()
+                continue
+
+        retos_mostrar.append({
+            'ur': uc,
+            'progreso': progreso,
+            'color': color,
+        })
+>>>>>>> Stashed changes
 
     if request.method == 'POST':
         reto_id = request.POST.get('reto_id')
         reto = get_object_or_404(Challenge, id=reto_id)
         if not UserChallenge.objects.filter(user=user, challenge=reto).exists():
+<<<<<<< Updated upstream
             UserChallenge.objects.create(user=user, challenge=reto)
+=======
+            UserChallenge.objects.create(user=user, challenge=reto, start_date=timezone.now())
+>>>>>>> Stashed changes
         return redirect('retos')
 
     top_users = UserProfile.objects.order_by('-points')[:5]
 
     return render(request, 'retos.html', {
+<<<<<<< Updated upstream
         'retos': retos_disponibles,
         'retos_usuario': retos_usuario,
         'retos_unidos': retos_usuario.values_list('challenge_id', flat=True),
@@ -418,6 +610,47 @@ def retos_view(request):
         'top_users': top_users
     })
 
+=======
+        'retos': retos_disponibles.exclude(id__in=retos_usuario.values_list('challenge_id', flat=True)),
+        'retos_mostrar': retos_mostrar,
+        'retos_unidos': retos_usuario.values_list('challenge_id', flat=True),
+        'top_users': top_users
+    })
+
+def historial_retos_view(request):
+    user = UserProfile.objects.get(id=request.session['user_id'])
+
+    historial = UserChallenge.objects.filter(
+        user=user,
+    ).filter(
+        completed=True
+    ) | UserChallenge.objects.filter(
+        user=user
+    ).filter(
+        failed=True
+    )
+
+    historial = historial.order_by('-start_date')[:10]
+
+    datos_historial = []
+    for ur in historial:
+        tipo = "Ahorro" if ur.challenge.type == "ahorro" else "No gastar"
+        estado = "Completado" if ur.completed else "Fallido"
+        datos_historial.append({
+            'titulo': ur.challenge.title,
+            'tipo': tipo,
+            'estado': estado,
+            'monto': ur.challenge.goal_amount,
+            'puntos': ur.earned_points or 0,
+            'fecha': ur.start_date.date(),
+        })
+
+    return render(request, 'historial_retos.html', {
+        'datos_historial': datos_historial
+    })
+
+
+>>>>>>> Stashed changes
 def logout_view(request):
     request.session.flush()
     return redirect('login')
@@ -450,4 +683,115 @@ def export_pdf_view(request):
     if pisa_status.err:
         return HttpResponse('Hubo un error generando el PDF', status=500)
 
+<<<<<<< Updated upstream
     return response
+=======
+    return response
+
+
+@csrf_exempt
+def trivia_view(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+    user = UserProfile.objects.get(id=user_id)
+
+    if 'puntos_trivia' not in request.session:
+        request.session['puntos_trivia'] = 0
+        request.session['fallos_trivia'] = 0
+        request.session['preguntas_respondidas'] = []
+
+    mensaje = ""
+    resultado_audio = ""
+    pregunta_actual = None
+    opciones = {}
+
+    if request.method == 'POST':
+        seleccion = request.POST.get('opcion_seleccionada', "").strip().lower()
+        pregunta_id = request.session.get('pregunta_actual_id')
+
+        try:
+            pregunta = PreguntaTrivia.objects.get(id=pregunta_id)
+        except PreguntaTrivia.DoesNotExist:
+            return redirect('trivia')
+
+        if seleccion == pregunta.respuesta_correcta.strip().lower():
+            request.session['puntos_trivia'] += 100
+            mensaje = "✅ ¡Correcto! Has ganado 100 puntos."
+            resultado_audio = "correct"
+        else:
+            request.session['fallos_trivia'] += 1
+            mensaje = f""
+            resultado_audio = "incorrect"
+
+        if pregunta_id not in request.session['preguntas_respondidas']:
+            request.session['preguntas_respondidas'].append(pregunta_id)
+
+        if request.session['fallos_trivia'] >= 3:
+            puntos_finales = request.session['puntos_trivia']
+            if puntos_finales > user.trivia_puntaje:
+                user.trivia_puntaje = puntos_finales
+                user.save()
+
+            puntaje, _ = PuntajeTrivia.objects.get_or_create(user=user)
+            puntaje.intentos += 1
+            if puntos_finales > puntaje.puntaje_total:
+                puntaje.puntaje_total = puntos_finales
+            puntaje.save()
+
+            request.session['puntos_trivia'] = 0
+            request.session['fallos_trivia'] = 0
+            request.session['preguntas_respondidas'] = []
+
+            return render(request, 'trivia_resultado.html', {
+                'puntos': puntos_finales,
+                'mensaje': mensaje,
+                'resultado_audio': resultado_audio
+            })
+
+    preguntas_disponibles = PreguntaTrivia.objects.exclude(id__in=request.session['preguntas_respondidas'])
+    if preguntas_disponibles.exists():
+        pregunta_actual = random.choice(list(preguntas_disponibles))
+        request.session['pregunta_actual_id'] = pregunta_actual.id
+        opciones = pregunta_actual.opciones
+    else:
+        mensaje = "🎉 Has respondido todas las preguntas."
+        puntos_finales = request.session['puntos_trivia']
+        if puntos_finales > user.trivia_puntaje:
+            user.trivia_puntaje = puntos_finales
+            user.save()
+        puntaje, _ = PuntajeTrivia.objects.get_or_create(user=user)
+        puntaje.intentos += 1
+        if puntos_finales > puntaje.puntaje_total:
+            puntaje.puntaje_total = puntos_finales
+        puntaje.save()
+
+        request.session['puntos_trivia'] = 0
+        request.session['fallos_trivia'] = 0
+        request.session['preguntas_respondidas'] = []
+
+        return render(request, 'trivia_resultado.html', {
+            'puntos': puntos_finales,
+            'mensaje': mensaje,
+            'resultado_audio': "timeout"
+        })
+
+    return render(request, 'trivia.html', {
+        'pregunta': pregunta_actual,
+        'opciones': opciones,
+        'puntos': request.session['puntos_trivia'],
+        'fallos': request.session['fallos_trivia'],
+        'mensaje': mensaje,
+        'resultado_audio': resultado_audio
+    })
+
+def ranking_trivia_view(request):
+    top_users_queryset = UserProfile.objects.order_by('-trivia_puntaje')[:3]
+    top_users = list(top_users_queryset)
+
+    # Rellenar con None si hay menos de 3
+    while len(top_users) < 3:
+        top_users.append(None)
+
+    return render(request, 'trivia_ranking.html', {'top_users': top_users})
+>>>>>>> Stashed changes

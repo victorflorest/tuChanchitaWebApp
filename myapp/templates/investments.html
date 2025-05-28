@@ -165,16 +165,22 @@
         <th>Fecha</th>
         <th>Acción</th>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
     </tr>
     {% for inv in inversiones %}
     <tr>
 =======
+=======
+>>>>>>> Stashed changes
       </tr>
     </thead>
     <tbody>
       {% for inv in inversiones %}
       <tr>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         <td>{{ inv.company }}</td>
         <td>{{ inv.symbol }}</td>
@@ -189,6 +195,7 @@
         <td>{{ inv.date }}</td>
         <td>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         <form action="{% url 'delete_investment' inv.id %}" method="post" style="display:inline;">
         {% csrf_token %}
         <button type="submit" onclick="return confirm('¿Estás seguro de que deseas eliminar esta inversión?');">Eliminar</button>
@@ -198,6 +205,8 @@
     {% endfor %}
 </table>
 =======
+=======
+>>>>>>> Stashed changes
           <form action="{% url 'delete_investment' inv.id %}" method="post" style="display:inline;">
             {% csrf_token %}
             <button type="submit" onclick="return confirm('¿Estás seguro de eliminar esta inversión?');">Eliminar</button>
@@ -208,6 +217,9 @@
     </tbody>
   </table>
 </div>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 

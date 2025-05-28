@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-l5-gipjy#wvexu^k!0=^d7nndbi93@!i@0m-r0(m(psoxm$jt@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -122,5 +122,10 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+<<<<<<< Updated upstream
 TWELVE_API_KEY = "ingresarllavetwelve"
 OPENAI_API_KEY = 'ingresarllaveopenai'
+=======
+TWELVE_API_KEY = "key"
+OPENAI_API_KEY = 'key'
+>>>>>>> Stashed changes
