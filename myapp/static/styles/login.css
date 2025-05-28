@@ -120,3 +120,87 @@ hr {
     font-size: 14px;
   }
 }
+<<<<<<< Updated upstream
+=======
+
+.login-card {
+  background: white;
+  border-radius: 10px;
+  padding: 60px 30px 40px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  position: relative;
+}
+
+.circle-logo {
+  width: 160px;
+  height: 160px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: -110px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.circle-img {
+  width: 82%;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.login-form h2 {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #1e3a8a;
+}
+
+.login-form label {
+  margin: 10px 0 5px;
+  font-weight: 500;
+  color: #333;
+}
+
+.options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin: 10px 0;
+}
+
+.options a {
+  color: #3B82F6;
+  text-decoration: none;
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 30px 20px;
+  }
+
+  .circle-logo {
+    width: 60px;
+    height: 60px;
+  }
+
+  .circle-img {
+    width: 30px;
+    height: 30px;
+  }
+}
+>>>>>>> Stashed changes

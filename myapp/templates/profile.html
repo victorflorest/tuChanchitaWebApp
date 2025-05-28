@@ -40,6 +40,72 @@
   .profile-actions a button {
     width: 100%;
   }
+<<<<<<< Updated upstream
+=======
+
+.profile-photo-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.photo-container {
+  position: relative;
+  width: 240px;
+  height: 240px;
+}
+
+.profile-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+#btnAddPhoto {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 28px;
+  font-weight: bold;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 6px rgba(0,123,255,0.6);
+  transition: background-color 0.3s ease;
+}
+
+#btnAddPhoto:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .photo-container {
+    width: 150px;
+    height: 150px;
+  }
+
+  #btnAddPhoto {
+    width: 36px;
+    height: 36px;
+    font-size: 22px;
+    bottom: 6px;
+    right: 6px;
+  }
+}
+
+
+>>>>>>> Stashed changes
 </style>
 {% endblock %}
 
@@ -50,6 +116,28 @@
   <section class="login-container profile-container">
     <h2>Mi Perfil</h2>
 
+<<<<<<< Updated upstream
+=======
+<div class="profile-photo-wrapper">
+  <div class="photo-container">
+    {% if user.photo %}
+      <img src="{{ user.photo.url }}" alt="Foto de perfil" class="profile-photo">
+    {% else %}
+      <img src="{% static 'images/default-profile.jpg' %}" alt="Foto por defecto" class="profile-photo">
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" action="{% url 'upload_profile_photo' %}" id="photoForm">
+      {% csrf_token %}
+      <input type="file" name="photo" id="photoInput" accept="image/*" style="display:none;">
+      <button type="button" id="btnAddPhoto" title="Cambiar foto" aria-label="Cambiar foto">+</button>
+    </form>
+  </div>
+</div>
+
+
+</div>
+
+>>>>>>> Stashed changes
     <div class="section">
       <p><strong>Puntos acumulados:</strong> {{ user.points }}</p>
       <p><strong>Bienvenido:</strong> {{ user.first_name }}</p>
@@ -101,4 +189,21 @@
     container.appendChild(bubble);
   }
 </script>
+<<<<<<< Updated upstream
+=======
+
+<script>
+  document.getElementById('btnAddPhoto').addEventListener('click', function() {
+  document.getElementById('photoInput').click();
+});
+
+document.getElementById('photoInput').addEventListener('change', function() {
+  if (this.files && this.files.length > 0) {
+    // Enviar el formulario automáticamente si se seleccionó un archivo
+    document.getElementById('photoForm').submit();
+  }
+  // Si se cancela, no pasa nada
+});
+</script>
+>>>>>>> Stashed changes
 {% endblock %}

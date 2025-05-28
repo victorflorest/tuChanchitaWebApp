@@ -155,10 +155,21 @@
     {% for item in historial %}
       <div class="chat-message user">
         <div class="message">{{ item.pregunta }}</div>
+<<<<<<< Updated upstream
         <img src="https://cdn-icons-png.flaticon.com/512/9131/9131546.png" alt="User">
       </div>
       <div class="chat-message bot">
         <img src="https://cdn-icons-png.flaticon.com/512/4712/4712107.png" alt="Bot">
+=======
+        {% if user.photo %}
+          <img src="{{ user.photo.url }}" alt="User">
+        {% else %}
+          <img src="{% static 'images/default-profile.jpg' %}" alt="User">
+        {% endif %}
+      </div>
+      <div class="chat-message bot">
+        <img src="{% static 'images/chanchita.png' %}" alt="Bot">
+>>>>>>> Stashed changes
         <div class="message">{{ item.respuesta }}</div>
       </div>
     {% endfor %}

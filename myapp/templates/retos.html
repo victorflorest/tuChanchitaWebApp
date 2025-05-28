@@ -67,15 +67,21 @@
     border-radius: 8px;
     overflow: hidden;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   }
 
   .progress-bar-fill {
     background-color: #4caf50;
 =======
+=======
+>>>>>>> Stashed changes
     margin-top: 5px;
   }
 
   .progress-bar-fill {
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     height: 15px;
     transition: width 0.4s ease;
@@ -100,7 +106,10 @@
   }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   /* Fondo burbujas */
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
   .bubble-container {
@@ -126,7 +135,10 @@
     50% { transform: translateY(-60px); }
   }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 </style>
@@ -172,6 +184,7 @@
       {% endif %}
     </div>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     {% endfor %}
   </form>
 
@@ -202,6 +215,42 @@
   </div>
 </main>
 
+=======
+    {% empty %}
+      <p style="text-align: center; margin-top: 10px;">No hay retos disponibles por ahora. ¡Vuelve pronto!</p>
+    {% endfor %}
+
+  </form>
+
+  <h3>Mis Retos Activos</h3>
+  <ul>
+        {% for item in retos_mostrar %}
+      <li>
+        <strong>{{ item.ur.challenge.title }}</strong> - ⏳ En progreso
+        <br>
+        <small>Progreso: {{ item.progreso }}%</small>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" style="width: {{ item.progreso }}%; background-color: {{ item.color }}"></div>
+        </div>
+      </li>
+    {% empty %}
+    </ul>  {# Cerramos la lista porque no hay elementos #}
+    <p style="text-align: center; margin-top: 10px;">No tienes retos activos por ahora.</p>
+      {% endfor %}
+
+
+  </ul>
+  <div class="back-button">
+  <a href="{% url 'historial_retos' %}">
+    <button>Ver Historial de Retos</button>
+  </a>
+</div>
+  <div class="back-button">
+    <a href="{% url 'dashboard' %}"><button>← Volver al Dashboard</button></a>
+  </div>
+</main>
+
+>>>>>>> Stashed changes
 =======
     {% empty %}
       <p style="text-align: center; margin-top: 10px;">No hay retos disponibles por ahora. ¡Vuelve pronto!</p>

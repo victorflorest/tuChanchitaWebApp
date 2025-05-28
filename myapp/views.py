@@ -27,11 +27,14 @@ from xhtml2pdf import pisa
 import io
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 from .models import (
     UserProfile, Expense, PaymentMethod, Challenge,
     UserChallenge, Investment, RecommendationVideo
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 from django.shortcuts import render, redirect
@@ -41,7 +44,10 @@ from django.contrib.auth.models import User  # si usas el modelo de Django
 from .forms import LoginForm
 from .forms import UpdateLimitForm
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 from django.utils.timezone import now
 from datetime import datetime
 from django.shortcuts import render
@@ -51,13 +57,21 @@ from .models import TriviaQuestion, TriviaOption, TriviaRespuestaUsuario
 import random
 from .models import PreguntaTrivia, PuntajeTrivia
 from django.views.decorators.csrf import csrf_exempt
+<<<<<<< Updated upstream
 >>>>>>> Stashed changes
 
+=======
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+>>>>>>> Stashed changes
 
 from .models import (
     UserProfile, Expense, PaymentMethod, Challenge,
     UserChallenge, Investment, RecommendationVideo, 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -73,9 +87,12 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 # ----------------- Autenticación -----------------
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 from django.contrib.auth.hashers import make_password
@@ -85,6 +102,9 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -94,7 +114,13 @@ def register_view(request):
         if form.is_valid():
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             user = form.save()
+=======
+            user = form.save(commit=False)
+            user.password = make_password(form.cleaned_data['password'])  # Hash seguro
+            user.save()
+>>>>>>> Stashed changes
 =======
             user = form.save(commit=False)
             user.password = make_password(form.cleaned_data['password'])  # Hash seguro
@@ -113,6 +139,10 @@ def register_view(request):
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
@@ -127,6 +157,7 @@ def login_view(request):
             password = form.cleaned_data['password']
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             try:
                 user = UserProfile.objects.get(email=email, password=password)
                 request.session['user_id'] = user.id
@@ -138,6 +169,8 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 
@@ -159,6 +192,9 @@ def login_view(request):
 
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -170,11 +206,14 @@ def logout_view(request):
 def dashboard_view(request):
     user = UserProfile.objects.get(id=request.session['user_id'])
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     ultimos_gastos = Expense.objects.filter(
         user=user,
         date__month=date.today().month,
         date__year=date.today().year
 =======
+=======
+>>>>>>> Stashed changes
     hoy = now()
     inicio_mes = hoy.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     if hoy.month == 12:
@@ -185,6 +224,9 @@ def dashboard_view(request):
     ultimos_gastos = Expense.objects.filter(
         user=user,
         date__range=(inicio_mes, fin_mes)
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     ).order_by('-date')[:10]
 
@@ -209,6 +251,7 @@ def profile_view(request):
         'puntos': user.points
     })
 
+<<<<<<< Updated upstream
 
 
 # Formulario para actualizar el límite
@@ -220,6 +263,32 @@ class UpdateLimitForm(forms.Form):
 
 >>>>>>> Stashed changes
 =======
+
+>>>>>>> Stashed changes
+=======
+def upload_profile_photo(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+
+    user = UserProfile.objects.get(id=user_id)
+
+    if request.method == 'POST' and request.FILES.get('photo'):
+        # Eliminar foto anterior si existe
+        if user.photo:
+            old_photo_path = os.path.join(settings.MEDIA_ROOT, user.photo.name)
+            if os.path.isfile(old_photo_path):
+                os.remove(old_photo_path)
+
+        # Guardar nueva foto
+        user.photo = request.FILES['photo']
+        user.save()
+        messages.success(request, 'Foto de perfil actualizada correctamente.')
+
+    return redirect('profile')
+
+
+# Formulario para actualizar el límite
 
 >>>>>>> Stashed changes
 
@@ -262,6 +331,7 @@ def register_expense_view(request):
     user = UserProfile.objects.get(id=request.session['user_id'])
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
         if form.is_valid():
@@ -278,12 +348,15 @@ def register_expense_view(request):
 =======
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
     if request.method == 'POST':
         form = ExpenseForm(request.POST, user=user)
         if form.is_valid():
             gasto = form.save(commit=False)
             gasto.user = user
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
             gasto.date = timezone.now().date()
             gasto.save()
@@ -296,6 +369,8 @@ def register_expense_view(request):
         'form': form
     })
 =======
+=======
+>>>>>>> Stashed changes
             gasto.date = timezone.now()  # usa datetime completo
             gasto.save()
 
@@ -307,6 +382,9 @@ def register_expense_view(request):
         form = ExpenseForm(user=user)
 
     return render(request, 'register_expense.html', {'form': form})
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 # ----------------- Reportes -----------------
@@ -372,7 +450,12 @@ def chatbot_view(request):
     if not user_id:
         return redirect('login')
 
+<<<<<<< Updated upstream
     # Usa sesión para almacenar historial del chat
+=======
+    user = UserProfile.objects.get(id=user_id)
+
+>>>>>>> Stashed changes
     if 'chat_historial' not in request.session:
         request.session['chat_historial'] = []
 
@@ -396,9 +479,19 @@ def chatbot_view(request):
                 respuesta = "Error al conectarse al asistente. Intenta más tarde."
 
             historial[-1]["respuesta"] = respuesta
+<<<<<<< Updated upstream
             request.session['chat_historial'] = historial  # actualizar la sesión
 
     return render(request, 'chatbot.html', {'historial': historial})
+=======
+            request.session['chat_historial'] = historial
+
+    return render(request, 'chatbot.html', {
+        'historial': historial,
+        'user': user,
+    })
+
+>>>>>>> Stashed changes
 
 # ----------------- Inversiones -----------------
 def investment_view(request):
@@ -455,6 +548,7 @@ def delete_investment_view(request, id):
     return redirect('investments')
 
 
+<<<<<<< Updated upstream
 
 # ----------------- Retos -----------------
 <<<<<<< Updated upstream
@@ -476,6 +570,9 @@ def retos_view(request):
             ).aggregate(Sum('amount'))['amount__sum'] or 0
             progreso_ahorro = total_ahorrado
 =======
+=======
+# ----------------- Retos -----------------
+>>>>>>> Stashed changes
 from datetime import timedelta, date
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
@@ -586,6 +683,9 @@ def retos_view(request):
             'progreso': progreso,
             'color': color,
         })
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
     if request.method == 'POST':
@@ -593,7 +693,11 @@ def retos_view(request):
         reto = get_object_or_404(Challenge, id=reto_id)
         if not UserChallenge.objects.filter(user=user, challenge=reto).exists():
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             UserChallenge.objects.create(user=user, challenge=reto)
+=======
+            UserChallenge.objects.create(user=user, challenge=reto, start_date=timezone.now())
+>>>>>>> Stashed changes
 =======
             UserChallenge.objects.create(user=user, challenge=reto, start_date=timezone.now())
 >>>>>>> Stashed changes
@@ -603,6 +707,7 @@ def retos_view(request):
 
     return render(request, 'retos.html', {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         'retos': retos_disponibles,
         'retos_usuario': retos_usuario,
         'retos_unidos': retos_usuario.values_list('challenge_id', flat=True),
@@ -611,6 +716,8 @@ def retos_view(request):
     })
 
 =======
+=======
+>>>>>>> Stashed changes
         'retos': retos_disponibles.exclude(id__in=retos_usuario.values_list('challenge_id', flat=True)),
         'retos_mostrar': retos_mostrar,
         'retos_unidos': retos_usuario.values_list('challenge_id', flat=True),
@@ -650,6 +757,9 @@ def historial_retos_view(request):
     })
 
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 def logout_view(request):
     request.session.flush()
@@ -684,8 +794,11 @@ def export_pdf_view(request):
         return HttpResponse('Hubo un error generando el PDF', status=500)
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     return response
 =======
+=======
+>>>>>>> Stashed changes
     return response
 
 
@@ -793,5 +906,9 @@ def ranking_trivia_view(request):
     while len(top_users) < 3:
         top_users.append(None)
 
+<<<<<<< Updated upstream
+    return render(request, 'trivia_ranking.html', {'top_users': top_users})
+>>>>>>> Stashed changes
+=======
     return render(request, 'trivia_ranking.html', {'top_users': top_users})
 >>>>>>> Stashed changes

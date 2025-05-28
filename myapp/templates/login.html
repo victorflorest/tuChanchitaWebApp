@@ -11,6 +11,7 @@
   <div class="bubble-container" id="bubble-container"></div>
 
   <main class="center-wrapper">
+<<<<<<< Updated upstream
     <section class="login-container">
       <h2>Iniciar sesión</h2>
 
@@ -32,6 +33,36 @@
 
       <hr />
 
+=======
+    <section class="login-card">
+      <div class="circle-logo">
+        <img src="{% static 'images/logo.png' %}" alt="Logo TuChanchita" class="circle-img">
+      </div>
+
+      <form method="post" class="login-form">
+        {% csrf_token %}
+        <h2>Iniciar sesión</h2>
+
+        {% if error_message %}
+          <p class="error-message">{{ error_message }}</p>
+        {% endif %}
+
+        <label for="id_email">Correo electrónico</label>
+        <input type="email" name="email" id="id_email" placeholder="Ingresa tu correo" required>
+
+        <label for="id_password">Contraseña</label>
+        <input type="password" name="password" id="id_password" placeholder="Ingresa tu contraseña" required>
+
+        <div class="options">
+          <label><input type="checkbox" name="remember"> Recuérdame</label>
+          <a href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button type="submit">LOGIN</button>
+      </form>
+
+      <!-- Sección de registro -->
+>>>>>>> Stashed changes
       <div class="footer">
         <p>¿No tienes una cuenta?</p>
         <a href="{% url 'register' %}">
