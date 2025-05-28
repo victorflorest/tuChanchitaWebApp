@@ -25,10 +25,24 @@ from .models import UserProfile, Expense
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 import io
+<<<<<<< Updated upstream
 
 from .models import (
     UserProfile, Expense, PaymentMethod, Challenge,
     UserChallenge, Investment, RecommendationVideo
+=======
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from django.contrib.auth.models import User  # si usas el modelo de Django
+from .forms import LoginForm
+from .forms import UpdateLimitForm
+
+
+from .models import (
+    UserProfile, Expense, PaymentMethod, Challenge,
+    UserChallenge, Investment, RecommendationVideo, 
+>>>>>>> Stashed changes
 )
 from .forms import ExpenseForm, PaymentMethodForm, RegisterForm, LoginForm, InvestmentForm
 
@@ -39,25 +53,45 @@ import os
 from openai import OpenAI
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+<<<<<<< Updated upstream
 
 # ----------------- Autenticación -----------------
+=======
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import check_password
+
+# ----------------- Autenticación -----------------
+from django.contrib.auth.hashers import make_password
+
+>>>>>>> Stashed changes
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
+<<<<<<< Updated upstream
             user = form.save()
+=======
+            user = form.save(commit=False)
+            user.password = make_password(form.cleaned_data['password'])  # Hash seguro
+            user.save()
+>>>>>>> Stashed changes
             request.session['user_id'] = user.id
             return redirect('dashboard')
     else:
         form = RegisterForm()
     return render(request, 'register.html', {'form': form})
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
+<<<<<<< Updated upstream
             try:
                 user = UserProfile.objects.get(email=email, password=password)
                 request.session['user_id'] = user.id
@@ -68,6 +102,26 @@ def login_view(request):
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
 
+=======
+
+            try:
+                user = UserProfile.objects.get(email=email)
+
+                if check_password(password, user.password):
+                    request.session['user_id'] = user.id
+                    return redirect('dashboard')
+                else:
+                    form.add_error(None, 'Contraseña incorrecta')
+
+            except UserProfile.DoesNotExist:
+                form.add_error('email', 'No existe un usuario con este correo electrónico')
+    else:
+        form = LoginForm()
+
+    return render(request, 'login.html', {'form': form})
+
+
+>>>>>>> Stashed changes
 def logout_view(request):
     request.session.flush()
     return redirect('login')
@@ -105,8 +159,12 @@ def profile_view(request):
 
 
 # Formulario para actualizar el límite
+<<<<<<< Updated upstream
 class UpdateLimitForm(forms.Form):
     nuevo_limite = forms.FloatField(label="Nuevo límite mensual", min_value=0)
+=======
+
+>>>>>>> Stashed changes
 
 def update_limit_view(request):
     user_id = request.session.get('user_id')
@@ -145,6 +203,7 @@ def add_card_view(request):
 # ----------------- Gastos -----------------
 def register_expense_view(request):
     user = UserProfile.objects.get(id=request.session['user_id'])
+<<<<<<< Updated upstream
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
         if form.is_valid():
@@ -158,6 +217,19 @@ def register_expense_view(request):
 
     tarjetas = PaymentMethod.objects.filter(user=user)
     form.fields['payment_method'].queryset = tarjetas
+=======
+
+    if request.method == 'POST':
+        form = ExpenseForm(request.POST, user=user)
+        if form.is_valid():
+            gasto = form.save(commit=False)
+            gasto.user = user
+            gasto.date = timezone.now().date()
+            gasto.save()
+            return redirect('dashboard')
+    else:
+        form = ExpenseForm(user=user)
+>>>>>>> Stashed changes
 
     return render(request, 'register_expense.html', {
         'form': form

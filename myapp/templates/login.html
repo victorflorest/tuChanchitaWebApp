@@ -1,24 +1,60 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Login - TuChanchita</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - TuChanchita</title>
+  <link rel="stylesheet" href="{% static 'styles/login.css' %}">
 </head>
 <body>
-    <h2>Iniciar sesión</h2>
-    
-    {% if error_message %}
-        <p style="color:red;">{{ error_message }}</p>
-    {% endif %}
-    
-    <form method="post">
+  <div class="bubble-container" id="bubble-container"></div>
+
+  <main class="center-wrapper">
+    <section class="login-container">
+      <h2>Iniciar sesión</h2>
+
+      {% if error_message %}
+        <p class="error-message">{{ error_message }}</p>
+      {% endif %}
+
+      <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+
+        <label for="id_email">Correo electrónico</label>
+        <input type="email" name="email" id="id_email" placeholder="Ingresa tu correo" required>
+
+        <label for="id_password">Contraseña</label>
+        <input type="password" name="password" id="id_password" placeholder="Ingresa tu contraseña" required>
+
         <button type="submit">Ingresar</button>
     </form>
 
-    <hr>
+      <hr />
 
-    <p>¿No tienes una cuenta?</p>
-    <a href="{% url 'register' %}"><button>Registrarse</button></a>
+      <div class="footer">
+        <p>¿No tienes una cuenta?</p>
+        <a href="{% url 'register' %}">
+          <button type="button">Registrarse</button>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const container = document.getElementById("bubble-container");
+    function createBubble() {
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      const size = Math.floor(Math.random() * 150) + 50;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.top = `${Math.random() * 100}%`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${(Math.random() * 1.5 + 3.5).toFixed(1)}s`;
+      container.appendChild(bubble);
+    }
+    for (let i = 0; i < 20; i++) createBubble();
+  </script>
 </body>
 </html>

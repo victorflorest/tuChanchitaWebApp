@@ -1,32 +1,32 @@
-<h2>Dashboard de {{ user.first_name }}</h2>
-<p><strong>Puntos acumulados:</strong> {{ puntos }}</p>
+{% extends 'layout/base.html' %}
+{% load static %}
+{% block title %}Dashboard - TuChanchita{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'styles/dashboard.css' %}">
+{% endblock %}
 
-<p><strong>Límite mensual:</strong> S/. {{ user.monthly_limit }}</p>
-<p><strong>Gasto total este mes:</strong> S/. {{ total_mes }}</p>
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
 
-<hr>
+<main class="dashboard-container">
+  <section class="header">
+    <h2>¡Hola, {{ user.first_name }}!</h2>
+    <p><strong>Puntos acumulados:</strong> {{ puntos }}</p>
+  </section>
 
-<h3>Últimos 10 gastos</h3>
-<table border="1">
-    <tr>
-        <th>Fecha</th>
-        <th>Tienda/Servicio</th>
-        <th>Monto (S/.)</th>
-    </tr>
-    {% for gasto in ultimos_gastos %}
-        <tr>
-            <td>{{ gasto.date }}</td>
-            <td>{{ gasto.store_name }}</td>
-            <td>{{ gasto.amount }}</td>
-        </tr>
-    {% empty %}
-        <tr>
-            <td colspan="3">No se han registrado gastos aún.</td>
-        </tr>
-    {% endfor %}
-</table>
+  <section class="summary-cards">
+    <div class="card">
+      <h4>Límite mensual</h4>
+      <p>S/. {{ user.monthly_limit }}</p>
+    </div>
+    <div class="card">
+      <h4>Gasto total este mes</h4>
+      <p>S/. {{ total_mes }}</p>
+    </div>
+  </section>
 
+<<<<<<< Updated upstream
 <br>
 <a href="{% url 'register_expense' %}"><button>Registrar nuevo gasto</button></a>
 <a href="{% url 'profile' %}"><button>Ir al perfil</button></a>
@@ -36,3 +36,49 @@
 <a href="{% url 'investments' %}"><button>Simulador de Inversiones</button></a>
 <a href="{% url 'retos' %}"><button>Ver Retos Gamificados</button></a>
 <a href="{% url 'logout' %}"><button>Cerrar sesión</button></a>
+=======
+  <section class="expenses">
+    <h3>Últimos 10 gastos</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tienda/Servicio</th>
+            <th>Monto (S/.)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for gasto in ultimos_gastos %}
+            <tr>
+              <td>{{ gasto.date }}</td>
+              <td>{{ gasto.store_name }}</td>
+              <td>{{ gasto.amount }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3">No se han registrado gastos aún.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+  const container = document.getElementById("bubble-container");
+  for (let i = 0; i < 20; i++) {
+    const bubble = document.createElement("div");
+    bubble.classList.add("bubble");
+    const size = Math.floor(Math.random() * 150) + 50;
+    bubble.style.width = `${size}px`;
+    bubble.style.height = `${size}px`;
+    bubble.style.top = `${Math.random() * 100}%`;
+    bubble.style.left = `${Math.random() * 100}%`;
+    bubble.style.animationDuration = `${(Math.random() * 1.5 + 3.5).toFixed(1)}s`;
+    container.appendChild(bubble);
+  }
+</script>
+{% endblock %}
+>>>>>>> Stashed changes

@@ -55,8 +55,13 @@ Versiones (26/05/2025):
 + xhtml2pdf==0.2.17
 
 ## Paso 1:
+<<<<<<< Updated upstream
 + Instalar Python 3.13.3
 + https://www.python.org/ftp/python/3.13.3/python-3.13.3-amd64.exe
+=======
++ Instalar Python 3.12.0
++ https://www.python.org/ftp/python/3.12.0/python-3.12.0-amd64.exe
+>>>>>>> Stashed changes
 + Activar la opción de añadir al path en la instalación y para todos los usuarios
 
 ## Paso 2:
@@ -104,7 +109,10 @@ Versiones (26/05/2025):
 
 + Abrimos nuestro navegador web de preferencia y entramos a la siguiente URL: http://127.0.0.1:8000/
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 ## En caso cierras y vuelvas a abrir y no puedas ejecutar con "python manage.py runserver" solo escribe este comando .\venv\Scripts\activate y ya podrás o presiona F1 escribes Select Interpreter y selecciona el que contenga venv y así podrás ejecutar el programa sin necesidad de escribir .\venv\Scripts\activate cada que salgas y entres del programa
 
 ## Instrucciones por IDE

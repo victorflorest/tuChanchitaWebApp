@@ -1,27 +1,104 @@
+{% extends 'layout/base.html' %}
+{% load static %}
 
-<p><strong>Puntos acumulados:</strong> {{ user.points }}</p>
+{% block title %}Perfil - TuChanchita{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'styles/login.css' %}">
+<style>
+  .profile-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
 
-<h3>Bienvenido, {{ user.first_name }}</h3>
-<p><strong>Email:</strong> {{ user.email }}</p>
-<p><strong>Límite mensual:</strong> S/. {{ user.monthly_limit }}</p>
+  .profile-container p {
+    margin: 6px 0;
+  }
 
-<a href="{% url 'update_limit' %}"><button>Actualizar límite mensual</button></a>
+  .section {
+    margin-top: 25px;
+  }
 
-<hr>
+  .card-list {
+    list-style: none;
+    padding-left: 0;
+  }
 
-<h3>Tarjetas Registradas</h3>
-<ul>
-    {% for card in cards %}
-        <li>{{ card.get_tipo_display }} - {{ card.banco }} ****{{ card.ultimos_4_digitos }} (Vence: {{ card.mes_vencimiento }}/{{ card.anio_vencimiento }})</li>
-    {% empty %}
-        <li>No tienes tarjetas registradas.</li>
-    {% endfor %}
-</ul>
+  .card-list li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+  }
 
-<a href="{% url 'add_card' %}"><button>Agregar nueva tarjeta</button></a>
+  .profile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
 
-<a href="{% url 'dashboard' %}">
-    <button style="margin-top: 20px; background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
-        ← Volver al Dashboard
-    </button>
-</a>
+  .profile-actions a button {
+    width: 100%;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
+
+<main class="center-wrapper">
+  <section class="login-container profile-container">
+    <h2>Mi Perfil</h2>
+
+    <div class="section">
+      <p><strong>Puntos acumulados:</strong> {{ user.points }}</p>
+      <p><strong>Bienvenido:</strong> {{ user.first_name }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Límite mensual:</strong> S/. {{ user.monthly_limit }}</p>
+
+      <div class="profile-actions">
+        <a href="{% url 'update_limit' %}">
+          <button type="button">Actualizar límite mensual</button>
+        </a>
+      </div>
+    </div>
+
+    <hr class="section">
+
+    <div class="section">
+      <h3>Tarjetas Registradas</h3>
+      <ul class="card-list">
+        {% for card in cards %}
+          <li>{{ card.get_tipo_display }} - {{ card.banco }} ****{{ card.ultimos_4_digitos }} (Vence: {{ card.mes_vencimiento }}/{{ card.anio_vencimiento }})</li>
+        {% empty %}
+          <li>No tienes tarjetas registradas.</li>
+        {% endfor %}
+      </ul>
+
+      <div class="profile-actions">
+        <a href="{% url 'add_card' %}">
+          <button type="button">Agregar nueva tarjeta</button>
+        </a>
+        <a href="{% url 'dashboard' %}">
+          <button type="button">← Volver al Dashboard</button>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  const container = document.getElementById("bubble-container");
+  for (let i = 0; i < 20; i++) {
+    const bubble = document.createElement("div");
+    bubble.classList.add("bubble");
+    const size = Math.floor(Math.random() * 150) + 50;
+    bubble.style.width = `${size}px`;
+    bubble.style.height = `${size}px`;
+    bubble.style.top = `${Math.random() * 100}%`;
+    bubble.style.left = `${Math.random() * 100}%`;
+    bubble.style.animationDuration = `${(Math.random() * 1.5 + 3.5).toFixed(1)}s`;
+    container.appendChild(bubble);
+  }
+</script>
+{% endblock %}

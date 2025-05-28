@@ -9,7 +9,6 @@ from django.utils.timezone import now
 from datetime import timedelta
 
 
-
 class UserProfile(models.Model):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=100)
@@ -40,17 +39,6 @@ class PaymentMethod(models.Model):
         return f"{self.get_tipo_display()} - {self.banco} ****{self.ultimos_4_digitos}"
 
 
-class Expense(models.Model):
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    amount = models.FloatField()
-    category = models.CharField(max_length=100)
-    payment_method = models.CharField(max_length=100)
-    date = models.DateField()
-    rating = models.IntegerField()
-    store_name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"{self.category} - {self.amount} soles en {self.store_name}"
 
 class Expense(models.Model):
     CATEGORIAS = [
