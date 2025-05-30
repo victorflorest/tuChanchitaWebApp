@@ -1,0 +1,118 @@
+/* Asegura que toda la estructura permita scroll */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #6B48FF, #3B82F6);
+  color: white;
+  min-height: 100vh;
+  height: auto;
+  overflow-x: hidden;
+  height: 100%;
+}
+
+/* Navbar fija arriba */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1E3A8A;
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Logo */
+.navbar-logo {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* Links del menú */
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links li a {
+  color: white;
+  text-decoration: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+.navbar-links li a:hover {
+  background: #3B82F6;
+}
+
+/* Botón rojo */
+.logout-link {
+  background: #EF4444;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.logout-link:hover {
+  background: #DC2626;
+}
+
+/* Toggle oculto en desktop */
+.nav-toggle {
+  display: none;
+}
+
+/* Icono ☰ */
+.nav-toggle-label {
+  display: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: white;
+}
+
+/* Contenido principal */
+.main-content {
+  padding: 20px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Menú responsive */
+@media (max-width: 768px) {
+  .nav-toggle-label {
+    display: block;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    background-color: #1E3A8A;
+    position: fixed;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    max-height: 0;
+    opacity: 0;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 99;
+  }
+
+  .navbar-links.show {
+    max-height: 100vh;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .navbar-links li {
+    padding: 12px 20px;
+    border-bottom: 1px solid #3B82F6;
+  }
+  
+}
+

@@ -17,8 +17,13 @@ urlpatterns = [
     path('chatbot/', views.chatbot_view, name='chatbot'),
     path('inversiones/', views.investment_view, name='investments'),
     path('retos/', views.retos_view, name='retos'),
-
-
-
-
+    path('logout/', views.logout_view, name='logout'),
+    path('eliminar-inversion/<int:id>/', views.delete_investment_view, name='delete_investment'),
+    path('historial-retos/', views.historial_retos_view, name='historial_retos'),
+    path('trivia/', views.trivia_view, name='trivia'),
+    path('trivia-ranking/', views.ranking_trivia_view, name='trivia_ranking'),
+    path('upload-profile-photo/', views.upload_profile_photo, name='upload_profile_photo'),
+    path("olvide-contrasena/", views.solicitar_reset_contrasena, name="olvide_contrasena"),
+    path("resetear/<uidb64>/<token>/", views.resetear_contrasena, name="resetear_contrasena"),
+    path('delete_card/<int:card_id>/', views.delete_card, name='delete_card'),
 ]

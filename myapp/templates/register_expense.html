@@ -1,14 +1,63 @@
-<h2>Registrar nuevo gasto</h2>
+{% extends 'layout/base.html' %}
+{% load static %}
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Guardar gasto</button>
-</form>
+{% block title %}Registrar Gasto - TuChanchita{% endblock %}
 
-<a href="{% url 'profile' %}">← Volver al perfil</a>
-<a href="{% url 'dashboard' %}">
-    <button style="margin-top: 20px; background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
-        ← Volver al Dashboard
-    </button>
-</a>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'styles/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
+
+<main class="center-wrapper">
+  <section class="login-container">
+    <h2>Registrar nuevo gasto</h2>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <label for="{{ form.amount.id_for_label }}">Monto</label>
+      {{ form.amount }}
+
+      <label for="{{ form.category.id_for_label }}">Categoría</label>
+      {{ form.category }}
+
+      <label for="{{ form.payment_method.id_for_label }}">Método de pago</label>
+      {{ form.payment_method }}
+
+      <label for="{{ form.date.id_for_label }}">Fecha</label>
+      {{ form.date }}
+
+      <label for="{{ form.store_name.id_for_label }}">Tienda / Servicio</label>
+      {{ form.store_name }}
+
+      <button type="submit">Guardar gasto</button>
+    </form>
+
+    <hr>
+
+    <div class="footer">
+      <a href="{% url 'dashboard' %}">
+        <button type="button">← Volver al Dashboard</button>
+      </a>
+    </div>
+  </section>
+</main>
+
+<script>
+  const container = document.getElementById("bubble-container");
+  for (let i = 0; i < 20; i++) {
+    const bubble = document.createElement("div");
+    bubble.classList.add("bubble");
+    const size = Math.floor(Math.random() * 150) + 50;
+    bubble.style.width = `${size}px`;
+    bubble.style.height = `${size}px`;
+    bubble.style.top = `${Math.random() * 100}%`;
+    bubble.style.left = `${Math.random() * 100}%`;
+    bubble.style.animationDuration = `${(Math.random() * 1.5 + 3.5).toFixed(1)}s`;
+    container.appendChild(bubble);
+  }
+</script>
+{% endblock %}

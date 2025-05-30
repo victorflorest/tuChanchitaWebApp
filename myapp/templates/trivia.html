@@ -1,0 +1,220 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}Trivia Financiera - TuChanchita{% endblock %}
+
+{% block extra_css %}
+<style>
+  .trivia-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 15px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    color: white;
+    text-align: center;
+    z-index: 1;
+    position: relative;
+  }
+
+  .trivia-header {
+    margin-bottom: 20px;
+  }
+
+  .card-pregunta {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 25px;
+    border-radius: 12px;
+    margin: 20px auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    text-align: left;
+  }
+
+  .card-pregunta p {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .card-pregunta label {
+    display: block;
+    margin: 8px 0;
+    cursor: pointer;
+  }
+
+  .card-pregunta input[type="radio"] {
+    margin-right: 8px;
+  }
+
+  .mensaje-info {
+    font-style: italic;
+    margin: 15px 0;
+    color: #93c5fd;
+  }
+
+  button {
+    margin-top: 20px;
+    background-color: #3B82F6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #2563EB;
+  }
+
+  .back-button {
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  .back-button button {
+    background-color: #60A5FA;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .back-button button:hover {
+    background-color: #3B82F6;
+  }
+
+  .bubble-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.07);
+    animation: float infinite ease-in-out;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-60px); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
+
+<main class="trivia-container">
+  <h2>🧠 Trivia Financiera</h2>
+
+  <div class="trivia-header">
+    <p><strong>Puntaje actual:</strong> {{ puntos }} puntos</p>
+    <p><strong>Fallos:</strong> {{ fallos }} / 3</p>
+    {% if mensaje %}
+      <p class="mensaje-info">{{ mensaje }}</p>
+    {% endif %}
+    <p id="timer" class="mensaje-info">⏳ Tiempo restante: 15s</p>
+  </div>
+
+  {% if pregunta %}
+    <form id="form-trivia" method="post">
+      {% csrf_token %}
+      <div class="card-pregunta">
+        <p>{{ pregunta.pregunta }}</p>
+        {% for key, val in opciones.items %}
+          <label>
+            <input type="radio" name="opcion_seleccionada" value="{{ key }}">
+            {{ key|upper }}. {{ val }}
+          </label>
+        {% endfor %}
+      </div>
+      <button type="submit">Responder</button>
+    </form>
+  {% else %}
+    <p class="mensaje-info">🎉 No hay más preguntas disponibles. ¡Gracias por jugar!</p>
+  {% endif %}
+
+  <div class="back-button">
+    <a href="{% url 'dashboard' %}"><button>← Volver al Dashboard</button></a>
+  </div>
+
+  <div class="back-button">
+    <a href="{% url 'trivia_ranking' %}"><button>🏆 Ver Ranking de la Trivia</button></a>
+  </div>
+</main>
+
+<!-- Sonidos -->
+<audio id="sound-correct" src="{% static 'sounds/correct.mp3' %}"></audio>
+<audio id="sound-incorrect" src="{% static 'sounds/incorrect.mp3' %}"></audio>
+<audio id="sound-timeout" src="{% static 'sounds/timeout.mp3' %}"></audio>
+
+<script>
+  // Burbujas animadas
+  const container = document.getElementById("bubble-container");
+  for (let i = 0; i < 20; i++) {
+    const bubble = document.createElement("div");
+    bubble.classList.add("bubble");
+    const size = Math.floor(Math.random() * 150) + 50;
+    bubble.style.width = `${size}px`;
+    bubble.style.height = `${size}px`;
+    bubble.style.top = `${Math.random() * 100}%`;
+    bubble.style.left = `${Math.random() * 100}%`;
+    bubble.style.animationDuration = `${(Math.random() * 1.5 + 3.5).toFixed(1)}s`;
+    container.appendChild(bubble);
+  }
+
+  const timerEl = document.getElementById("timer");
+  const form = document.getElementById("form-trivia");
+  const timeoutSound = document.getElementById("sound-timeout");
+  const correctSound = document.getElementById("sound-correct");
+  const incorrectSound = document.getElementById("sound-incorrect");
+
+  let tiempo = 15;
+  let timeoutTriggered = false;
+
+  const countdown = setInterval(() => {
+    tiempo--;
+    if (tiempo <= 0) {
+      clearInterval(countdown);
+      timeoutTriggered = true;
+      timeoutSound.play();
+      setTimeout(() => form.submit(), 1000);
+    } else {
+      timerEl.textContent = `⏳ Tiempo restante: ${tiempo}s`;
+    }
+  }, 1000);
+
+  // Envío de formulario con sonido correcto/incorrecto
+  form.addEventListener("submit", function (event) {
+    if (timeoutTriggered) return;
+
+    event.preventDefault();
+    const selected = document.querySelector('input[name="opcion_seleccionada"]:checked');
+
+    if (!selected) {
+      alert("Selecciona una opción antes de enviar.");
+      return;
+    }
+
+    const valorSeleccionado = selected.value.toLowerCase();
+    const respuestaCorrecta = "{{ pregunta.respuesta_correcta|default:''|lower }}";
+
+    if (valorSeleccionado === respuestaCorrecta) {
+      correctSound.play();
+    } else {
+      incorrectSound.play();
+    }
+
+    setTimeout(() => form.submit(), 1000);
+  });
+</script>
+{% endblock %}

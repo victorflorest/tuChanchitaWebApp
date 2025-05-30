@@ -1,0 +1,99 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}Historial de Retos - TuChanchita{% endblock %}
+
+{% block extra_css %}
+<style>
+  .historial-container {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    color: white;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 20px;
+  }
+
+  th, td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  th {
+    background-color: #1E3A8A;
+    color: white;
+  }
+
+  .back-button {
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  .back-button button {
+    background-color: #60A5FA;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .back-button button:hover {
+    background-color: #3B82F6;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="historial-container">
+  <h2>🕓 Historial de Retos</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Reto</th>
+        <th>Tipo</th>
+        <th>Monto S/</th>
+        <th>Estado</th>
+        <th>Puntos</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for reto in datos_historial %}
+      <tr>
+        <td>{{ reto.fecha }}</td>
+        <td>{{ reto.titulo }}</td>
+        <td>{{ reto.tipo }}</td>
+        <td>{{ reto.monto }}</td>
+        <td>
+          {% if reto.estado == 'Completado' %}
+            <span style="color: #10B981;">{{ reto.estado }}</span>
+          {% else %}
+            <span style="color: #EF4444;">{{ reto.estado }}</span>
+          {% endif %}
+        </td>
+        <td>{{ reto.puntos }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="back-button">
+    <a href="{% url 'retos' %}"><button>← Volver a Retos</button></a>
+  </div>
+</main>
+{% endblock %}

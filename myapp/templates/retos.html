@@ -1,72 +1,207 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Retos Gamificados</title>
-</head>
-<body>
-    <hr>
-<h3>🏆 Top 5 Usuarios con más puntos</h3>
-<table border="1" style="margin-top: 10px;">
-    <tr>
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}Retos Gamificados - TuChanchita{% endblock %}
+
+{% block extra_css %}
+<style>
+  .retos-container {
+    max-width: 950px;
+    margin: 50px auto;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 15px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    color: white;
+    z-index: 1;
+    position: relative;
+  }
+
+  .retos-container h2,
+  .retos-container h3 {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  .retos-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    background: rgba(255,255,255,0.04);
+    font-size: 14px;
+  }
+
+  th, td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  th {
+    background-color: #1E3A8A;
+  }
+
+  form button {
+    background-color: #60A5FA;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  form button:hover {
+    background-color: #3B82F6;
+  }
+
+  .reto-card {
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.07);
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  .progress-bar {
+    background-color: #ddd;
+    height: 15px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 5px;
+  }
+
+  .progress-bar-fill {
+    height: 15px;
+    transition: width 0.4s ease;
+  }
+
+  .back-button {
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  .back-button button {
+    background-color: #60A5FA;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .back-button button:hover {
+    background-color: #3B82F6;
+  }
+
+  .bubble-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.07);
+    animation: float infinite ease-in-out;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-60px); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
+
+<main class="retos-container">
+  <h2>🌟 Retos Gamificados</h2>
+
+  <h3>🏆 Top 5 Usuarios con más puntos</h3>
+  <table>
+    <thead>
+      <tr>
         <th>Puesto</th>
         <th>Nombre</th>
         <th>Puntos</th>
-    </tr>
-    {% for u in top_users %}
-    <tr>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in top_users %}
+      <tr>
         <td>{{ forloop.counter }}</td>
         <td>{{ u.first_name }} {{ u.last_name }}</td>
         <td>{{ u.points }}</td>
-    </tr>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h3>Retos Disponibles</h3>
+  <form method="post">
+    {% csrf_token %}
+    {% for reto in retos %}
+    <div class="reto-card">
+      <strong>{{ reto.title }}</strong><br>
+      <small>{{ reto.description }}</small><br>
+      {% if reto.id in retos_unidos %}
+        <em>✅ Ya unido</em>
+      {% else %}
+        <button type="submit" name="reto_id" value="{{ reto.id }}">Unirme</button>
+      {% endif %}
+    </div>
+    {% empty %}
+      <p style="text-align: center; margin-top: 10px;">No hay retos disponibles por ahora. ¡Vuelve pronto!</p>
     {% endfor %}
-</table>
 
-    <h2>🎯 Retos Gamificados</h2>
+  </form>
 
-    <h3>Disponibles</h3>
-    <form method="post">
-        {% csrf_token %}
-        {% for reto in retos %}
-            <div>
-                <strong>{{ reto.title }}</strong><br>
-                <small>{{ reto.description }}</small><br>
-                {% if reto.id in retos_unidos %}
-                    <em>✅ Ya unido</em>
-                {% else %}
-                    <button type="submit" name="reto_id" value="{{ reto.id }}">Unirme</button>
-                {% endif %}
-                <hr>
-            </div>
-        {% endfor %}
-    </form>
+  <h3>Mis Retos Activos</h3>
+  <ul>
+        {% for item in retos_mostrar %}
+      <li>
+        <strong>{{ item.ur.challenge.title }}</strong> - ⏳ En progreso
+        <br>
+        <small>Progreso: {{ item.progreso }}%</small>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" style="width: {{ item.progreso }}%; background-color: {{ item.color }}"></div>
+        </div>
+      </li>
+    {% empty %}
+    </ul>  {# Cerramos la lista porque no hay elementos #}
+    <p style="text-align: center; margin-top: 10px;">No tienes retos activos por ahora.</p>
+      {% endfor %}
 
-    <h3>Mis Retos</h3>
-<ul>
-    {% for ur in retos_usuario %}
-        <li>
-            {{ ur.challenge.title }} -
-            {% if ur.completed %}
-                🏆 <strong>¡Completado!</strong> (+{{ ur.earned_points }} puntos)
-            {% elif ur.failed %}
-                ❌ <strong>Fallido</strong>
-            {% else %}
-                ⏳ En progreso
 
-                {% if ur.challenge.type == 'ahorro' %}
-                    <br><small>Progreso: S/{{ progreso_ahorro }} / 100</small>
-                    <div style="width: 100%; background-color: #ddd; height: 15px;">
-                        <div style="width: {{ progreso_ahorro|floatformat:0 }}%; background-color: #4caf50; height: 15px;"></div>
-                    </div>
-                {% endif %}
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul>
+  </ul>
+  <div class="back-button">
+  <a href="{% url 'historial_retos' %}">
+    <button>Ver Historial de Retos</button>
+  </a>
+</div>
+  <div class="back-button">
+    <a href="{% url 'dashboard' %}"><button>← Volver al Dashboard</button></a>
+  </div>
+</main>
 
-    <br>
-    <a href="{% url 'dashboard' %}">
-        <button>← Volver al Dashboard</button>
-    </a>
-</body>
-</html>
+<script>
+  const container = document.getElementById("bubble-container");
+  for (let i = 0; i < 20; i++) {
+    const bubble = document.createElement("div");
+    bubble.classList.add("bubble");
+    const size = Math.floor(Math.random() * 150) + 50;
+    bubble.style.width = `${size}px`;
+    bubble.style.height = `${size}px`;
+    bubble.style.top = `${Math.random() * 100}%`;
+    bubble.style.left = `${Math.random() * 100}%`;
+    bubble.style.animationDuration = `${(Math.random() * 1.5 + 3.5).toFixed(1)}s`;
+    container.appendChild(bubble);
+  }
+</script>
+{% endblock %}

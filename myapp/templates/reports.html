@@ -1,47 +1,144 @@
-<h2>Reporte de Gastos - {{ user.first_name }}</h2>
+{% extends 'layout/base.html' %}
+{% load static %}
 
-<h3>Gasto por Categoría ({{ gastos_categoria.0.date|date:"F Y" }})</h3>
-<canvas id="categoriaChart"></canvas>
+{% block title %}Reportes - TuChanchita{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'styles/login.css' %}">
+<style>
+  .report-container {
+    max-width: 700px;
+    margin: auto;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    color: white;
+  }
 
-<h3>Resumen Mensual</h3>
-<table border="1">
-    <tr>
+  h2, h3 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.05);
+    margin-top: 20px;
+  }
+
+  th, td {
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: left;
+  }
+
+  canvas {
+    margin: 0 auto 30px auto;
+    display: block;
+    max-width: 100%;
+  }
+
+  .report-actions {
+    margin-top: 30px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .report-actions a button {
+    width: 100%;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
+
+<main class="center-wrapper">
+  <section class="login-container report-container">
+    <h2>Reporte de Gastos - {{ user.first_name }}</h2>
+
+    <h3>Gasto por Categoría ({{ today|date:"F Y" }})</h3>
+    <canvas id="categoriaChart"></canvas>
+
+    <h3>Resumen Mensual</h3>
+    <table>
+      <tr>
         <th>Mes</th>
         <th>Total (S/.)</th>
-    </tr>
-    {% for mes, total in resumen_mensual %}
-    <tr>
+      </tr>
+      {% for mes, total in resumen_mensual %}
+      <tr>
         <td>{{ mes }}</td>
-        <td>{{ total }}</td>
-    </tr>
-    {% endfor %}
-</table>
+        <td>S/. {{ total }}</td>
+      </tr>
+      {% endfor %}
+    </table>
 
-<br>
-<a href="{% url 'export_pdf' %}"><button>Exportar como PDF</button></a>
+    <div class="report-actions">
+      <a href="{% url 'export_pdf' %}">
+        <button type="button">📄 Exportar como PDF</button>
+      </a>
+
+      <a href="{% url 'dashboard' %}">
+        <button type="button">← Volver al Dashboard</button>
+      </a>
+    </div>
+  </section>
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const categoriaData = {
-        labels: [{% for cat in gastos_categoria %}'{{ cat.category }}',{% endfor %}],
-        datasets: [{
-            label: 'Gasto por categoría',
-            data: [{% for cat in gastos_categoria %}{{ cat.total }},{% endfor %}],
-            backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#81C784'],
-        }]
-    };
+  const categoriaData = {
+    labels: [{% for cat in gastos_categoria %}'{{ cat.category }}',{% endfor %}],
+    datasets: [{
+      label: 'Gasto por categoría',
+      data: [{% for cat in gastos_categoria %}{{ cat.total }},{% endfor %}],
+      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#81C784', '#BA68C8', '#4DD0E1'],
+      borderRadius: 6
+    }]
+  };
 
-    new Chart(document.getElementById('categoriaChart'), {
-        type: 'bar',
-        data: categoriaData,
-        options: {
-            responsive: true
+  new Chart(document.getElementById('categoriaChart'), {
+    type: 'bar',
+    data: categoriaData,
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
         }
-    });
-</script>
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: 'white'
+          }
+        },
+        x: {
+          ticks: {
+            color: 'white'
+          }
+        }
+      }
+    }
+  });
 
-<a href="{% url 'dashboard' %}">
-    <button style="margin-top: 20px; background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
-        ← Volver al Dashboard
-    </button>
-</a>
+  // Burbujas
+  const container = document.getElementById("bubble-container");
+  for (let i = 0; i < 20; i++) {
+    const bubble = document.createElement("div");
+    bubble.classList.add("bubble");
+    const size = Math.floor(Math.random() * 150) + 50;
+    bubble.style.width = `${size}px`;
+    bubble.style.height = `${size}px`;
+    bubble.style.top = `${Math.random() * 100}%`;
+    bubble.style.left = `${Math.random() * 100}%`;
+    bubble.style.animationDuration = `${(Math.random() * 1.5 + 3.5).toFixed(1)}s`;
+    container.appendChild(bubble);
+  }
+</script>
+{% endblock %}

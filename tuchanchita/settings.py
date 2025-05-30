@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-l5-gipjy#wvexu^k!0=^d7nndbi93@!i@0m-r0(m(psoxm$jt@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['jbom.pythonanywhere.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -122,4 +122,13 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-TWELVE_API_KEY = "bf488cfa7095425597392835e27e7899"
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'gianfranco22.ft@gmail.com'        
+EMAIL_HOST_PASSWORD = 'bewa nszi jxpa dahr'  
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+TWELVE_API_KEY = "xd"
+OPENAI_API_KEY = 'xd'

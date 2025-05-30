@@ -1,20 +1,159 @@
-<h2>Simulador de Inversiones</h2>
+{% extends 'layout/base.html' %}
+{% load static %}
 
-{% if mensaje %}
-    <p><strong>{{ mensaje }}</strong></p>
-{% endif %}
+{% block title %}Simulador de Inversiones - TuChanchita{% endblock %}
 
-<form method="post">
+{% block extra_css %}
+<style>
+  .investment-container {
+    max-width: 950px;
+    margin: 50px auto;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 15px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    color: white;
+    z-index: 1;
+    position: relative;
+  }
+
+  .investment-container h2,
+  .investment-container h3 {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+
+  form input,
+  form select {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+  }
+
+  form button {
+    background-color: #60A5FA;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  form button:hover {
+    background-color: #3B82F6;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.04);
+    font-size: 14px;
+  }
+
+  th, td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  th {
+    background-color: #1E3A8A;
+  }
+
+  td button {
+    background-color: #EF4444;
+    color: white;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  td button:hover {
+    background-color: #DC2626;
+  }
+
+  .back-button {
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  .back-button button {
+    background-color: #60A5FA;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .back-button button:hover {
+    background-color: #3B82F6;
+  }
+
+  /* Fondo animado */
+  .bubble-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.07);
+    animation: float infinite ease-in-out;
+  }
+  .table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+  margin-top: 20px;
+  border-radius: 10px;
+}
+
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-60px); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
+
+<main class="investment-container">
+  <h2>Simulador de Inversiones</h2>
+
+  {% if mensaje %}
+    <p style="text-align:center; font-weight:bold;">{{ mensaje }}</p>
+  {% endif %}
+
+  <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Invertir</button>
-</form>
+  </form>
 
-<hr>
+  <hr>
 
-<h3>Mis Inversiones</h3>
-<table border="1">
-    <tr>
+  <h3>Mis Inversiones</h3>
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
         <th>Empresa</th>
         <th>Símbolo</th>
         <th>Acciones</th>
@@ -24,9 +163,12 @@
         <th>Valor actual</th>
         <th>Ganancia/Pérdida</th>
         <th>Fecha</th>
-    </tr>
-    {% for inv in inversiones %}
-    <tr>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inv in inversiones %}
+      <tr>
         <td>{{ inv.company }}</td>
         <td>{{ inv.symbol }}</td>
         <td>{{ inv.shares }}</td>
@@ -34,15 +176,40 @@
         <td>{{ inv.total_invested }}</td>
         <td>{{ inv.get_current_price }}</td>
         <td>{{ inv.current_value }}</td>
-        <td style="color: {% if inv.profit_loss > 0 %}green{% else %}red{% endif %};">
-            {{ inv.profit_loss }}
+        <td style="color: {% if inv.profit_loss > 0 %}lightgreen{% else %}#F87171{% endif %};">
+          {{ inv.profit_loss }}
         </td>
         <td>{{ inv.date }}</td>
-    </tr>
-    {% endfor %}
-</table>
+        <td>
+          <form action="{% url 'delete_investment' inv.id %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" onclick="return confirm('¿Estás seguro de eliminar esta inversión?');">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
 
-<a href="{% url 'dashboard' %}">
-    <button style="margin-top: 20px;">← Volver al Dashboard</button>
-</a>
+  <div class="back-button">
+    <a href="{% url 'dashboard' %}"><button>&larr; Volver al Dashboard</button></a>
+  </div>
+</main>
+
+<script>
+  const container = document.getElementById("bubble-container");
+  for (let i = 0; i < 20; i++) {
+    const bubble = document.createElement("div");
+    bubble.classList.add("bubble");
+    const size = Math.floor(Math.random() * 150) + 50;
+    bubble.style.width = `${size}px`;
+    bubble.style.height = `${size}px`;
+    bubble.style.top = `${Math.random() * 100}%`;
+    bubble.style.left = `${Math.random() * 100}%`;
+    bubble.style.animationDuration = `${(Math.random() * 1.5 + 3.5).toFixed(1)}s`;
+    container.appendChild(bubble);
+  }
+</script>
+{% endblock %}
