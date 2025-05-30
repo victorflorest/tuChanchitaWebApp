@@ -1,4 +1,5 @@
 {% load static %}
+<link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,71 +7,169 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login - TuChanchita</title>
   <link rel="stylesheet" href="{% static 'styles/login.css' %}">
+  <style>
+    .logo-circle {
+      width: 110px;
+      height: 110px;
+      background-color: white;
+      border-radius: 50%;
+      overflow: hidden;
+      margin: 0 auto;
+      margin-top: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo-circle img {
+      width: 80px;
+      height: auto;
+    }
+
+.login-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.logo-circle {
+  width: 110px;
+  height: 110px;
+  background-color: white;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo-circle img {
+  width: 80px;
+  height: auto;
+}
+
+.center-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-container {
+  background-color: #1e3a8a;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  color: white;
+  width: 300px;
+  text-align: center;
+  position: relative;
+}
+
+.logo-circle {
+  width: 100px;
+  height: 100px;
+  background-color: white;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto 20px auto; /* Espacio debajo del logo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo-circle img {
+  width: 70px;
+  height: auto;
+}
+
+.center-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  position: relative;
+}
+
+.login-container {
+  background-color: #1e3a8a;
+  padding: 60px 40px 40px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  color: white;
+  width: 400px; /* Más ancho */
+  text-align: center;
+  position: relative;
+}
+
+/* Insignia flotante arriba */
+.logo-circle {
+  width: 100px;
+  height: 100px;
+  background-color: white;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: -50px; /* Mitad fuera */
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.logo-circle img {
+  width: 70px;
+  height: auto;
+}
+
+
+  </style>
 </head>
 <body>
   <div class="bubble-container" id="bubble-container"></div>
 
   <main class="center-wrapper">
-<<<<<<< Updated upstream
-    <section class="login-container">
-      <h2>Iniciar sesión</h2>
+  <section class="login-container">
+    <div class="logo-circle">
+      <img src="{% static 'images/logo.png' %}" alt="TuChanchita Logo">
+    </div>
 
-      {% if error_message %}
-        <p class="error-message">{{ error_message }}</p>
-      {% endif %}
+    <h2>Iniciar sesión</h2>
 
-      <form method="post">
-        {% csrf_token %}
+    {% if error_message %}
+      <p class="error-message">{{ error_message }}</p>
+    {% endif %}
 
-        <label for="id_email">Correo electrónico</label>
-        <input type="email" name="email" id="id_email" placeholder="Ingresa tu correo" required>
+    <form method="post">
+      {% csrf_token %}
+      <label for="id_email">Correo electrónico</label>
+      <input type="email" name="email" id="id_email" placeholder="Ingresa tu correo" required>
 
-        <label for="id_password">Contraseña</label>
-        <input type="password" name="password" id="id_password" placeholder="Ingresa tu contraseña" required>
+      <label for="id_password">Contraseña</label>
+      <input type="password" name="password" id="id_password" placeholder="Ingresa tu contraseña" required>
 
-        <button type="submit">Ingresar</button>
+      <button type="submit">Ingresar</button>
     </form>
 
-      <hr />
+    <hr />
 
-=======
-    <section class="login-card">
-      <div class="circle-logo">
-        <img src="{% static 'images/logo.png' %}" alt="Logo TuChanchita" class="circle-img">
-      </div>
+    <div class="footer">
+      <p>¿No tienes una cuenta?</p>
+      <a href="{% url 'register' %}"><button type="button">Registrarse</button></a>
+    </div>
+    <div class="footer">
+      <p>¿Olvidaste tu contraseña?</p>
+      <a href="{% url 'olvide_contrasena' %}"><button type="button">Recuperar contraseña</button></a>
+    </div>
+  </section>
+</main>
 
-      <form method="post" class="login-form">
-        {% csrf_token %}
-        <h2>Iniciar sesión</h2>
-
-        {% if error_message %}
-          <p class="error-message">{{ error_message }}</p>
-        {% endif %}
-
-        <label for="id_email">Correo electrónico</label>
-        <input type="email" name="email" id="id_email" placeholder="Ingresa tu correo" required>
-
-        <label for="id_password">Contraseña</label>
-        <input type="password" name="password" id="id_password" placeholder="Ingresa tu contraseña" required>
-
-        <div class="options">
-          <label><input type="checkbox" name="remember"> Recuérdame</label>
-          <a href="#">¿Olvidaste tu contraseña?</a>
-        </div>
-
-        <button type="submit">LOGIN</button>
-      </form>
-
-      <!-- Sección de registro -->
->>>>>>> Stashed changes
-      <div class="footer">
-        <p>¿No tienes una cuenta?</p>
-        <a href="{% url 'register' %}">
-          <button type="button">Registrarse</button>
-        </a>
-      </div>
-    </section>
-  </main>
 
   <script>
     const container = document.getElementById("bubble-container");

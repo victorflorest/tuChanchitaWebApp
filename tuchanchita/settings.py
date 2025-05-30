@@ -25,12 +25,8 @@ SECRET_KEY = 'django-insecure-l5-gipjy#wvexu^k!0=^d7nndbi93@!i@0m-r0(m(psoxm$jt@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['jbom.pythonanywhere.com', 'localhost', '127.0.0.1']
 
-LOGIN_URL = '/login/'
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 # Application definition
 
@@ -121,24 +117,18 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-TWELVE_API_KEY = "ingresarllavetwelve"
-OPENAI_API_KEY = 'ingresarllaveopenai'
-=======
-TWELVE_API_KEY = "key"
-OPENAI_API_KEY = 'key'
->>>>>>> Stashed changes
-=======
-TWELVE_API_KEY = "key"
-OPENAI_API_KEY = 'key'
->>>>>>> Stashed changes
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'gianfranco22.ft@gmail.com'        
+EMAIL_HOST_PASSWORD = 'bewa nszi jxpa dahr'  
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+TWELVE_API_KEY = "xd"
+OPENAI_API_KEY = 'xd'

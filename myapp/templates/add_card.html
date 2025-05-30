@@ -1,7 +1,70 @@
-<h2>Agregar tarjeta</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Guardar tarjeta</button>
-</form>
-<a href="{% url 'profile' %}">← Volver al perfil</a>
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}Agregar tarjeta - TuChanchita{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'styles/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Burbujas en el fondo -->
+<div class="bubble-container" id="bubble-container"></div>
+
+<main class="center-wrapper">
+  <section class="login-container">
+    <h2>Agregar nueva tarjeta</h2>
+
+    <!-- Formulario para agregar la tarjeta -->
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <label for="{{ form.tipo.id_for_label }}">Tipo de tarjeta</label>
+      {{ form.tipo }}
+
+      <label for="{{ form.sistema_de_pago.id_for_label }}">Sistema de pago</label>
+      {{ form.sistema_de_pago }}
+
+      <label for="{{ form.banco.id_for_label }}">Banco</label>
+      {{ form.banco }}
+
+      <label for="{{ form.ultimos_4_digitos.id_for_label }}">Últimos 4 dígitos</label>
+      {{ form.ultimos_4_digitos }}
+
+      <label for="{{ form.mes_vencimiento.id_for_label }}">Mes de vencimiento</label>
+      {{ form.mes_vencimiento }}
+
+      <label for="{{ form.anio_vencimiento.id_for_label }}">Año de vencimiento</label>
+      {{ form.anio_vencimiento }}
+
+      <button type="submit">Guardar tarjeta</button>
+    </form>
+
+    <hr>
+
+    <div class="footer">
+      <a href="{% url 'profile' %}">
+        <button type="button">← Volver al perfil</button>
+      </a>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Crear las burbujas en el fondo
+  const container = document.getElementById("bubble-container");
+  for (let i = 0; i < 20; i++) {
+    const bubble = document.createElement("div");
+    bubble.classList.add("bubble");
+    const size = Math.floor(Math.random() * 150) + 50;
+    bubble.style.width = `${size}px`;
+    bubble.style.height = `${size}px`;
+    bubble.style.top = `${Math.random() * 100}%`;
+    bubble.style.left = `${Math.random() * 100}%`;
+    bubble.style.animationDuration = `${(Math.random() * 1.5 + 3.5).toFixed(1)}s`;
+    container.appendChild(bubble);
+  }
+</script>
+
+{% endblock %}

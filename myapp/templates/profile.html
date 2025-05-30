@@ -1,7 +1,8 @@
 {% extends 'layout/base.html' %}
 {% load static %}
-
+<link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
 {% block title %}Perfil - TuChanchita{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'styles/login.css' %}">
 <style>
@@ -24,10 +25,101 @@
   }
 
   .card-list li {
+    display: flex;  /* Usamos flexbox para alinear la imagen y el texto */
+    align-items: center;  /* Alineamos la imagen y el texto verticalmente */
     margin-bottom: 10px;
     padding: 10px;
     background: rgba(255, 255, 255, 0.08);
     border-radius: 8px;
+    gap: 15px;  /* Espacio entre la imagen y el texto */
+    position: relative;  /* Para poder colocar el botón de eliminación */
+  }
+
+  .card-image-wrapper {
+    width: 60px;  /* Ajusta el tamaño de la imagen */
+    height: 40px;
+    background-color: white;  /* Fondo blanco para la imagen */
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .card-image-wrapper img {
+    width: 50px;  /* Ajusta el tamaño de la imagen dentro del contenedor */
+    height: 30px;
+    object-fit: contain;
+  }
+
+  .card-info {
+    flex: 1;  /* El texto ocupará el espacio restante */
+  }
+
+  /* Estilo para el botón de eliminar tarjeta */
+  .delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #EF4444;
+    color: white;
+    border: none;
+    padding: 6px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .delete-btn:hover {
+    background-color: #DC2626;
+  }
+
+  /* Popup de confirmación */
+  .popup {
+    display: none; /* Inicialmente oculto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro con algo de transparencia */
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Estilo del contenedor del popup */
+  .popup-content {
+    background-color: white; /* Fondo blanco */
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px; /* Tamaño ajustable */
+    text-align: center;
+  }
+
+  /* Estilo del título del popup */
+  .popup-content h3 {
+    color: #333; /* Color de texto oscuro */
+    margin-bottom: 15px;
+  }
+
+  /* Estilo del mensaje */
+  .popup-content p {
+    color: #666; /* Color de texto gris oscuro para el mensaje */
+    margin-bottom: 20px;
+  }
+
+  /* Estilo de los botones dentro del popup */
+  .popup-content button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff; /* Color del fondo del botón */
+    color: white; /* Color de texto blanco */
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .popup-content button:hover {
+    background-color: #0056b3; /* Color más oscuro cuando se pasa el mouse sobre el botón */
   }
 
   .profile-actions {
@@ -40,72 +132,67 @@
   .profile-actions a button {
     width: 100%;
   }
-<<<<<<< Updated upstream
-=======
 
-.profile-photo-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
+  .profile-photo-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
 
-.photo-container {
-  position: relative;
-  width: 240px;
-  height: 240px;
-}
-
-.profile-photo {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-}
-
-#btnAddPhoto {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  font-size: 28px;
-  font-weight: bold;
-  color: white;
-  background-color: #007bff;
-  border: none;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 0 6px rgba(0,123,255,0.6);
-  transition: background-color 0.3s ease;
-}
-
-#btnAddPhoto:hover {
-  background-color: #0056b3;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
   .photo-container {
-    width: 150px;
-    height: 150px;
+    position: relative;
+    width: 240px;
+    height: 240px;
+  }
+
+  .profile-photo {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
   }
 
   #btnAddPhoto {
-    width: 36px;
-    height: 36px;
-    font-size: 22px;
-    bottom: 6px;
-    right: 6px;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 6px rgba(0,123,255,0.6);
+    transition: background-color 0.3s ease;
   }
-}
 
+  #btnAddPhoto:hover {
+    background-color: #0056b3;
+  }
 
->>>>>>> Stashed changes
+  /* Responsive */
+  @media (max-width: 600px) {
+    .photo-container {
+      width: 150px;
+      height: 150px;
+    }
+
+    #btnAddPhoto {
+      width: 36px;
+      height: 36px;
+      font-size: 22px;
+      bottom: 6px;
+      right: 6px;
+    }
+  }
 </style>
 {% endblock %}
 
@@ -116,28 +203,23 @@
   <section class="login-container profile-container">
     <h2>Mi Perfil</h2>
 
-<<<<<<< Updated upstream
-=======
-<div class="profile-photo-wrapper">
-  <div class="photo-container">
-    {% if user.photo %}
-      <img src="{{ user.photo.url }}" alt="Foto de perfil" class="profile-photo">
-    {% else %}
-      <img src="{% static 'images/default-profile.jpg' %}" alt="Foto por defecto" class="profile-photo">
-    {% endif %}
+    <div class="profile-photo-wrapper">
+      <div class="photo-container">
+        {% if user.photo %}
+          <img src="{{ user.photo.url }}" alt="Foto de perfil" class="profile-photo">
+        {% else %}
+          <img src="{% static 'images/default-profile.jpg' %}" alt="Foto por defecto" class="profile-photo">
+        {% endif %}
 
-    <form method="POST" enctype="multipart/form-data" action="{% url 'upload_profile_photo' %}" id="photoForm">
-      {% csrf_token %}
-      <input type="file" name="photo" id="photoInput" accept="image/*" style="display:none;">
-      <button type="button" id="btnAddPhoto" title="Cambiar foto" aria-label="Cambiar foto">+</button>
-    </form>
-  </div>
-</div>
+        <form method="POST" enctype="multipart/form-data" action="{% url 'upload_profile_photo' %}" id="photoForm">
+          {% csrf_token %}
+          <input type="file" name="photo" id="photoInput" accept="image/*" style="display:none;">
+          <button type="button" id="btnAddPhoto" title="Cambiar foto" aria-label="Cambiar foto">+</button>
+        </form>
+      </div>
+    </div>
 
-
-</div>
-
->>>>>>> Stashed changes
+    
     <div class="section">
       <p><strong>Puntos acumulados:</strong> {{ user.points }}</p>
       <p><strong>Bienvenido:</strong> {{ user.first_name }}</p>
@@ -157,23 +239,84 @@
       <h3>Tarjetas Registradas</h3>
       <ul class="card-list">
         {% for card in cards %}
-          <li>{{ card.get_tipo_display }} - {{ card.banco }} ****{{ card.ultimos_4_digitos }} (Vence: {{ card.mes_vencimiento }}/{{ card.anio_vencimiento }})</li>
+          <li>
+            <div class="card-image-wrapper">
+              {% if card.sistema_de_pago == 1 %}
+                <img src="{% static 'images/visa.png' %}" alt="Visa">
+              {% elif card.sistema_de_pago == 2 %}
+                <img src="{% static 'images/mastercard.png' %}" alt="Mastercard">
+              {% endif %}
+            </div>
+
+            <div class="card-info">
+              <p>{{ card.get_tipo_display }} - {{ card.banco }}</p>
+              <p>****{{ card.ultimos_4_digitos }} (Vence: {{ card.mes_vencimiento }}/{{ card.anio_vencimiento }})</p>
+            </div>
+
+            <!-- Botón de eliminar tarjeta -->
+            <button class="delete-btn" data-card-id="{{ card.id }}">🗑️</button>
+          </li>
         {% empty %}
           <li>No tienes tarjetas registradas.</li>
         {% endfor %}
       </ul>
+    </div>
 
-      <div class="profile-actions">
-        <a href="{% url 'add_card' %}">
-          <button type="button">Agregar nueva tarjeta</button>
-        </a>
-        <a href="{% url 'dashboard' %}">
-          <button type="button">← Volver al Dashboard</button>
-        </a>
-      </div>
+    <div class="profile-actions">
+      <a href="{% url 'add_card' %}">
+        <button type="button">Agregar nueva tarjeta</button>
+      </a>
+      <a href="{% url 'dashboard' %}">
+        <button type="button">← Volver al Dashboard</button>
+      </a>
     </div>
   </section>
 </main>
+
+<!-- Popup de confirmación -->
+<div class="popup" id="popupConfirmation">
+  <div class="popup-content">
+    <h3>¿Estás seguro de que deseas eliminar esta tarjeta?</h3>
+    <button id="btnConfirmDelete">Sí, eliminar</button>
+    <button id="btnCancelDelete">Cancelar</button>
+  </div>
+</div>
+
+<script>
+  document.getElementById('btnAddPhoto').addEventListener('click', function() {
+  document.getElementById('photoInput').click();
+});
+
+document.getElementById('photoInput').addEventListener('change', function() {
+  if (this.files && this.files.length > 0) {
+    // Enviar el formulario automáticamente si se seleccionó un archivo
+    document.getElementById('photoForm').submit();
+  }
+  // Si se cancela, no pasa nada
+});
+</script>
+
+
+<script>
+  // Función para abrir el popup de confirmación
+  let cardToDelete;
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      cardToDelete = this.getAttribute('data-card-id');
+      document.getElementById('popupConfirmation').style.display = 'flex';
+    });
+  });
+
+  // Confirmar eliminación
+  document.getElementById('btnConfirmDelete').addEventListener('click', function() {
+    window.location.href = `/delete_card/${cardToDelete}/`; // Redirigir a la URL de eliminación
+  });
+
+  // Cancelar eliminación
+  document.getElementById('btnCancelDelete').addEventListener('click', function() {
+    document.getElementById('popupConfirmation').style.display = 'none';
+  });
+</script>
 
 <script>
   const container = document.getElementById("bubble-container");
@@ -189,21 +332,5 @@
     container.appendChild(bubble);
   }
 </script>
-<<<<<<< Updated upstream
-=======
 
-<script>
-  document.getElementById('btnAddPhoto').addEventListener('click', function() {
-  document.getElementById('photoInput').click();
-});
-
-document.getElementById('photoInput').addEventListener('change', function() {
-  if (this.files && this.files.length > 0) {
-    // Enviar el formulario automáticamente si se seleccionó un archivo
-    document.getElementById('photoForm').submit();
-  }
-  // Si se cancela, no pasa nada
-});
-</script>
->>>>>>> Stashed changes
 {% endblock %}

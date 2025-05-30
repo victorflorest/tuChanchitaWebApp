@@ -68,7 +68,7 @@ Versiones (26/05/2025):
 
 + Abrimos la carpeta en VSCode y nos dirigimos a la terminal e ingresamos los siguientes comandos:
 
-+ py -3.13 -m venv venv
++ py -3.12 -m venv venv
 
 + .\venv\Scripts\activate
 
@@ -104,10 +104,6 @@ Versiones (26/05/2025):
 
 + Abrimos nuestro navegador web de preferencia y entramos a la siguiente URL: http://127.0.0.1:8000/
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 ## En caso cierras y vuelvas a abrir y no puedas ejecutar con "python manage.py runserver" solo escribe este comando .\venv\Scripts\activate y ya podrás o presiona F1 escribes Select Interpreter y selecciona el que contenga venv y así podrás ejecutar el programa sin necesidad de escribir .\venv\Scripts\activate cada que salgas y entres del programa
 
 ## Instrucciones por IDE

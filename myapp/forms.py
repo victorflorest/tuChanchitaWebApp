@@ -6,7 +6,7 @@ from .models import PaymentMethod
 class PaymentMethodForm(forms.ModelForm):
     class Meta:
         model = PaymentMethod
-        fields = ['tipo', 'banco', 'ultimos_4_digitos', 'mes_vencimiento', 'anio_vencimiento']
+        fields = ['tipo', 'sistema_de_pago', 'banco', 'ultimos_4_digitos', 'mes_vencimiento', 'anio_vencimiento']
         widgets = {
             'ultimos_4_digitos': forms.TextInput(attrs={'maxlength': 4}),
             'mes_vencimiento': forms.NumberInput(attrs={'min': 1, 'max': 12}),

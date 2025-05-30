@@ -17,10 +17,7 @@ class UserProfile(models.Model):
     monthly_limit = models.FloatField(default=0.0)
     points = models.IntegerField(default=0)
     trivia_puntaje = models.IntegerField(default=0)
-<<<<<<< Updated upstream
-=======
     photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
->>>>>>> Stashed changes
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.email})"
@@ -30,11 +27,16 @@ class PaymentMethod(models.Model):
     TIPO_CHOICES = [
         (1, 'Crédito'),
         (2, 'Débito'),
-        (3, 'Prepagada'),
+    ]
+
+    TIPO_SISTEMAPAGO = [
+        (1, 'Visa'),
+        (2, 'Mastercard',)
     ]
 
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    tipo = models.IntegerField(choices=TIPO_CHOICES)
+    tipo = models.IntegerField(choices=TIPO_CHOICES, default=1)
+    sistema_de_pago = models.IntegerField(choices=TIPO_SISTEMAPAGO, default=1)
     banco = models.CharField(max_length=100)
     ultimos_4_digitos = models.CharField(max_length=4)
     mes_vencimiento = models.IntegerField()
@@ -58,15 +60,7 @@ class Expense(models.Model):
     amount = models.FloatField()
     category = models.CharField(max_length=50, choices=CATEGORIAS)
     payment_method = models.ForeignKey('PaymentMethod', on_delete=models.SET_NULL, null=True)
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    date = models.DateField(default=timezone.now)
-=======
     date = models.DateTimeField(default=timezone.now)  # actualizado a DateTimeField
->>>>>>> Stashed changes
-=======
-    date = models.DateTimeField(default=timezone.now)  # actualizado a DateTimeField
->>>>>>> Stashed changes
     store_name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -160,11 +154,6 @@ class UserChallenge(models.Model):
                 self.user.points += self.challenge.points
                 self.user.save()
                 self.save()
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
 
 
 
@@ -203,7 +192,3 @@ class PuntajeTrivia(models.Model):
     puntaje_total = models.IntegerField(default=0)
     intentos = models.IntegerField(default=0)  # intentos fallidos actuales
     ultima_actualizacion = models.DateTimeField(auto_now=True)
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes

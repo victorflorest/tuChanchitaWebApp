@@ -8,7 +8,6 @@ body, html {
   height: 100%;
   font-family: 'Segoe UI', sans-serif;
   background: linear-gradient(135deg, #6B48FF, #3B82F6);
-  overflow: hidden;
 }
 
 .bubble-container {
@@ -120,8 +119,6 @@ hr {
     font-size: 14px;
   }
 }
-<<<<<<< Updated upstream
-=======
 
 .login-card {
   background: white;
@@ -203,4 +200,3 @@ hr {
     height: 30px;
   }
 }
->>>>>>> Stashed changes

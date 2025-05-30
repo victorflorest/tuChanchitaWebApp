@@ -7,6 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}TuChanchita{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'styles/base.css' %}">
+  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+
   {% block extra_css %}{% endblock %}
 </head>
 <body style="min-height: 100vh; display: flex; flex-direction: column;">
@@ -24,14 +26,7 @@
         <li><a href="{% url 'chatbot' %}">ChatBot</a></li>
         <li><a href="{% url 'investments' %}">Inversiones</a></li>
         <li><a href="{% url 'retos' %}">Retos</a></li>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
         <li><a href="{% url 'trivia' %}">Juegos</a></li>
->>>>>>> Stashed changes
-=======
-        <li><a href="{% url 'trivia' %}">Juegos</a></li>
->>>>>>> Stashed changes
         <li><a href="{% url 'logout' %}" class="logout-link">Salir</a></li>
         </ul>
 

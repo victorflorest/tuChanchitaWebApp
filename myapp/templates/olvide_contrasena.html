@@ -1,12 +1,12 @@
 {% load static %}
+<link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Registrarse - TuChanchita</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar contraseña - TuChanchita</title>
   <link rel="stylesheet" href="{% static 'styles/login.css' %}">
-  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
   <style>
     body {
       margin: 0;
@@ -54,17 +54,18 @@
       height: auto;
     }
 
-    input, select {
+    input[type="email"] {
       width: 100%;
       padding: 10px;
       border: none;
       border-radius: 8px;
       background-color: #3b82f6;
       color: white;
-      margin-bottom: 15px;
+      margin-top: 10px;
+      margin-bottom: 20px;
     }
 
-    input::placeholder {
+    input[type="email"]::placeholder {
       color: #dbeafe;
     }
 
@@ -84,17 +85,10 @@
       background-color: #3b82f6;
     }
 
-    .errorlist {
-      color: #fca5a5;
-      font-size: 13px;
-      margin: 0 0 10px;
-      text-align: left;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      text-align: left;
+    .mensaje {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #d1d5db;
     }
   </style>
 </head>
@@ -107,13 +101,16 @@
         <img src="{% static 'images/logo.png' %}" alt="TuChanchita Logo">
       </div>
 
-      <h2>Registrarse</h2>
-
+      <h2>Olvidé mi contraseña</h2>
       <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Crear cuenta</button>
+        <label for="email">Correo:</label>
+        <input type="email" name="email" placeholder="Ingresa tu correo" required>
+        <button type="submit">Enviar enlace</button>
       </form>
+      {% if mensaje %}
+      <p class="mensaje">{{ mensaje }}</p>
+      {% endif %}
     </div>
   </main>
 
@@ -131,8 +128,6 @@
       container.appendChild(bubble);
     }
     for (let i = 0; i < 20; i++) createBubble();
-
-    
   </script>
 </body>
 </html>
