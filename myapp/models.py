@@ -18,6 +18,8 @@ class UserProfile(models.Model):
     points = models.IntegerField(default=0)
     trivia_puntaje = models.IntegerField(default=0)
     photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
+    login_attempts = models.IntegerField(default=0)
+    is_blocked = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.email})"
@@ -53,7 +55,7 @@ class Expense(models.Model):
         ('Educación', 'Educación'),
         ('Ropa', 'Ropa'),
         ('Otros', 'Otros'),
-        ('Ahorro', 'Ahorro')   
+        ('Ahorro', 'Ahorro')
     ]
 
     user = models.ForeignKey('UserProfile', on_delete=models.CASCADE)

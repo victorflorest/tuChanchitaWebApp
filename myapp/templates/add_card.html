@@ -15,31 +15,61 @@
   <section class="login-container">
     <h2>Agregar nueva tarjeta</h2>
 
-    <!-- Formulario para agregar la tarjeta -->
-    <form method="post">
-      {% csrf_token %}
-      {{ form.non_field_errors }}
+   <form method="post">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
 
-      <label for="{{ form.tipo.id_for_label }}">Tipo de tarjeta</label>
-      {{ form.tipo }}
+  <label for="{{ form.tipo.id_for_label }}">Tipo de tarjeta</label>
+  {{ form.tipo }}
+  {% if form.tipo.errors %}
+    {% for error in form.tipo.errors %}
+      <div style="color:red;">{{ error }}</div>
+    {% endfor %}
+  {% endif %}
 
-      <label for="{{ form.sistema_de_pago.id_for_label }}">Sistema de pago</label>
-      {{ form.sistema_de_pago }}
+  <label for="{{ form.sistema_de_pago.id_for_label }}">Sistema de pago</label>
+  {{ form.sistema_de_pago }}
+  {% if form.sistema_de_pago.errors %}
+    {% for error in form.sistema_de_pago.errors %}
+      <div style="color:red;">{{ error }}</div>
+    {% endfor %}
+  {% endif %}
 
-      <label for="{{ form.banco.id_for_label }}">Banco</label>
-      {{ form.banco }}
+  <label for="{{ form.banco.id_for_label }}">Banco</label>
+  {{ form.banco }}
+  {% if form.banco.errors %}
+    {% for error in form.banco.errors %}
+      <div style="color:red;">{{ error }}</div>
+    {% endfor %}
+  {% endif %}
 
-      <label for="{{ form.ultimos_4_digitos.id_for_label }}">Últimos 4 dígitos</label>
-      {{ form.ultimos_4_digitos }}
+  <label for="{{ form.ultimos_4_digitos.id_for_label }}">Últimos 4 dígitos</label>
+  {{ form.ultimos_4_digitos }}
+  {% if form.ultimos_4_digitos.errors %}
+    {% for error in form.ultimos_4_digitos.errors %}
+      <div style="color:red;">{{ error }}</div>
+    {% endfor %}
+  {% endif %}
 
-      <label for="{{ form.mes_vencimiento.id_for_label }}">Mes de vencimiento</label>
-      {{ form.mes_vencimiento }}
+  <label for="{{ form.mes_vencimiento.id_for_label }}">Mes de vencimiento</label>
+  {{ form.mes_vencimiento }}
+  {% if form.mes_vencimiento.errors %}
+    {% for error in form.mes_vencimiento.errors %}
+      <div style="color:red;">{{ error }}</div>
+    {% endfor %}
+  {% endif %}
 
-      <label for="{{ form.anio_vencimiento.id_for_label }}">Año de vencimiento</label>
-      {{ form.anio_vencimiento }}
+  <label for="{{ form.anio_vencimiento.id_for_label }}">Año de vencimiento</label>
+  {{ form.anio_vencimiento }}
+  {% if form.anio_vencimiento.errors %}
+    {% for error in form.anio_vencimiento.errors %}
+      <div style="color:red;">{{ error }}</div>
+    {% endfor %}
+  {% endif %}
 
-      <button type="submit">Guardar tarjeta</button>
-    </form>
+  <button type="submit">Guardar tarjeta</button>
+</form>
+
 
     <hr>
 

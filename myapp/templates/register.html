@@ -111,9 +111,60 @@
 
       <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+
+        <!-- Campo email -->
+        <label for="{{ form.email.id_for_label }}">Correo electrónico</label>
+        {{ form.email }}
+        {% if form.email.errors %}
+          {% for error in form.email.errors %}
+            <div class="errorlist">{{ error }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Campo first_name -->
+        <label for="{{ form.first_name.id_for_label }}">Nombre</label>
+        {{ form.first_name }}
+        {% if form.first_name.errors %}
+          {% for error in form.first_name.errors %}
+            <div class="errorlist">{{ error }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Campo last_name -->
+        <label for="{{ form.last_name.id_for_label }}">Apellido</label>
+        {{ form.last_name }}
+        {% if form.last_name.errors %}
+          {% for error in form.last_name.errors %}
+            <div class="errorlist">{{ error }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Campo password -->
+        <label for="{{ form.password.id_for_label }}">Contraseña</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+          {% for error in form.password.errors %}
+            <div class="errorlist">{{ error }}</div>
+          {% endfor %}
+        {% endif %}
+
         <button type="submit">Crear cuenta</button>
       </form>
+
+      <!-- Botón volver al login -->
+      <div style="margin-top: 15px;">
+        <a href="{% url 'login' %}" style="
+          display: inline-block;
+          padding: 10px 20px;
+          border-radius: 8px;
+          background-color: #60a5fa;
+          color: white;
+          text-decoration: none;
+          font-weight: bold;
+          transition: background-color 0.3s;
+        ">← Volver al login</a>
+      </div>
+
     </div>
   </main>
 
@@ -131,8 +182,6 @@
       container.appendChild(bubble);
     }
     for (let i = 0; i < 20; i++) createBubble();
-
-    
   </script>
 </body>
 </html>

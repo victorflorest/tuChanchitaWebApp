@@ -26,4 +26,5 @@ urlpatterns = [
     path("olvide-contrasena/", views.solicitar_reset_contrasena, name="olvide_contrasena"),
     path("resetear/<uidb64>/<token>/", views.resetear_contrasena, name="resetear_contrasena"),
     path('delete_card/<int:card_id>/', views.delete_card, name='delete_card'),
+
 ]
