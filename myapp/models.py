@@ -18,6 +18,8 @@ class UserProfile(models.Model):
     points = models.IntegerField(default=0)
     trivia_puntaje = models.IntegerField(default=0)
     photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
+    login_attempts = models.IntegerField(default=0)
+    is_blocked = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.email})"
@@ -53,7 +55,7 @@ class Expense(models.Model):
         ('Educación', 'Educación'),
         ('Ropa', 'Ropa'),
         ('Otros', 'Otros'),
-        ('Ahorro', 'Ahorro')   
+        ('Ahorro', 'Ahorro')
     ]
 
     user = models.ForeignKey('UserProfile', on_delete=models.CASCADE)
@@ -192,3 +194,52 @@ class PuntajeTrivia(models.Model):
     puntaje_total = models.IntegerField(default=0)
     intentos = models.IntegerField(default=0)  # intentos fallidos actuales
     ultima_actualizacion = models.DateTimeField(auto_now=True)
+
+
+class Rifa(models.Model):
+    ESTADOS = (
+        ('pendiente', 'Pendiente de revisión'),
+        ('aprobado', 'Aprobado'),
+        ('rechazado', 'Rechazado'),
+    )
+
+    titulo = models.CharField(max_length=100)
+    descripcion = models.TextField(help_text="Describe el sorteo y premios")
+    fecha_sorteo = models.DateField(help_text="Fecha estimada del sorteo")
+    foto_premio = models.ImageField(upload_to='rifas/foto_premios/', null=True, blank=True)
+    qr_yape = models.ImageField(upload_to='rifas/qr_yape/')
+    dni = models.CharField(max_length=15)
+    numero_celular = models.CharField(max_length=20)
+    foto_dni = models.ImageField(upload_to='rifas/foto_dni/')
+    selfie_con_dni = models.ImageField(upload_to='rifas/selfie_dni/')
+    estado = models.CharField(max_length=10, choices=ESTADOS, default='pendiente')
+    creado_por = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.titulo
+
+class Participante(models.Model):
+    rifa = models.ForeignKey(Rifa, on_delete=models.CASCADE)
+    nombres = models.CharField(max_length=100)
+    apellidos = models.CharField(max_length=100)
+    correo = models.EmailField()
+    dni = models.CharField(max_length=15)
+    celular = models.CharField(max_length=20)
+    numero_operacion = models.CharField(max_length=50)
+    metodo_pago = models.CharField(max_length=20, choices=[('yape', 'Yape'), ('plin', 'Plin')])
+    fecha_pago = models.DateField()
+    numero_rifa = models.PositiveIntegerField()
+    
+    # Relación con UserProfile
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, blank=True)  # Relación con UserProfile
+
+    def save(self, *args, **kwargs):
+        if not self.numero_rifa:
+            # Asignar el siguiente número de rifa según la cantidad de participantes en la misma rifa
+            last_number = Participante.objects.filter(rifa=self.rifa).count() + 1
+            self.numero_rifa = last_number
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.nombres} {self.apellidos} - Rifa #{self.numero_rifa}"

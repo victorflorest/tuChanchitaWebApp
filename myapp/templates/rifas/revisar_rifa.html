@@ -1,0 +1,31 @@
+{% block content %}
+<h2>🔎 Revisión de solicitud de rifa</h2>
+
+<p><strong>Título:</strong> {{ rifa.titulo }}</p>
+<p><strong>Descripción:</strong> {{ rifa.descripcion }}</p>
+<p><strong>Fecha del sorteo:</strong> {{ rifa.fecha_sorteo }}</p>
+<p><strong>Número de celular:</strong> {{ rifa.numero_celular }}</p>
+<p><strong>DNI:</strong> {{ rifa.dni }}</p>
+
+<h4>🎁 Foto del premio:</h4>
+{% if rifa.foto_premio %}
+  <img src="{{ rifa.foto_premio.url }}" width="300" style="border-radius: 8px; margin-bottom: 15px;">
+{% else %}
+  <p style="color: gray;">No se ha subido una imagen del premio.</p>
+{% endif %}
+
+<h4>📷 QR de Yape:</h4>
+<img src="{{ rifa.qr_yape.url }}" width="300" style="border-radius: 8px;">
+
+<h4>🪪 Foto del DNI:</h4>
+<img src="{{ rifa.foto_dni.url }}" width="300" style="border-radius: 8px;">
+
+<h4>🤳 Selfie con DNI:</h4>
+<img src="{{ rifa.selfie_con_dni.url }}" width="300" style="border-radius: 8px;">
+
+<form method="post" style="margin-top: 20px;">
+    {% csrf_token %}
+    <button type="submit" name="accion" value="aprobar" style="background-color: green; color: white; padding: 10px 20px; margin-right: 10px;">✅ Aprobar</button>
+    <button type="submit" name="accion" value="rechazar" style="background-color: red; color: white; padding: 10px 20px;">❌ Rechazar</button>
+</form>
+{% endblock %}

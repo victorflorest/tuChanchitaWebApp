@@ -1,0 +1,183 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}Rifas Activas - TuChanchita{% endblock %}
+
+{% block extra_css %}
+<style>
+  .bubble-container {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    animation: floatBubble infinite ease-in-out;
+    opacity: 0.25;
+  }
+
+  @keyframes floatBubble {
+    0% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.3;
+    }
+    50% {
+      transform: translate(-20px, -60px) scale(1.2);
+      opacity: 0.5;
+    }
+    100% {
+      transform: translate(20px, -120px) scale(1);
+      opacity: 0.1;
+    }
+  }
+
+  .rifa-section {
+    position: relative;
+    z-index: 2;
+    padding: 40px 20px;
+  }
+
+  h2 {
+    color: white;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .rifa-card {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    width: 260px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease;
+  }
+
+  .rifa-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .rifa-card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+
+  .rifa-buttons {
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  .rifa-buttons a {
+    margin: 0 10px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .crear {
+    background-color: #4CAF50;
+  }
+
+  .mis-rifas {
+    background-color: #2196F3;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
+
+<section class="rifa-section">
+  <h2>🎁 Rifas en las que Participas</h2>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+    {% for rifa in rifas %}
+      <div class="rifa-card">
+        <h4 style="color: #8ab4f8; text-align: center;">{{ rifa.titulo }}</h4>
+
+        {% if rifa.foto_premio %}
+          <img src="{{ rifa.foto_premio.url }}" alt="Premio">
+        {% endif %}
+
+        <p style="font-size: 13px; color: #ddd; text-align: center;">{{ rifa.descripcion }}</p>
+        <p style="font-size: 13px;"><strong>Fecha de sorteo:</strong> {{ rifa.fecha_sorteo }}</p>
+        <p style="font-size: 13px;"><strong>Contacto:</strong> {{ rifa.numero_celular }}</p>
+
+        <p style="font-size: 13px; color: orange; text-align: center;">📝 Estás participando en esta rifa</p>
+
+        <a href="{% url 'detalle_rifa_usuario' rifa.id %}" style="background-color: #43A047; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; display: block; text-align: center; margin-top: 10px;">
+          🔍 Ver detalles
+        </a>
+      </div>
+    {% empty %}
+      <p style="color: white;">No estás participando en ninguna rifa activa.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="rifa-section">
+  <h2>🔔 Rifas Activas de Otros Usuarios</h2>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+    {% for rifa in otras_rifas %}
+      <div class="rifa-card">
+        <h4 style="color: #8ab4f8; text-align: center;">{{ rifa.titulo }}</h4>
+
+        {% if rifa.foto_premio %}
+          <img src="{{ rifa.foto_premio.url }}" alt="Premio">
+        {% endif %}
+
+        <p style="font-size: 13px; color: #ddd; text-align: center;">{{ rifa.descripcion }}</p>
+        <p style="font-size: 13px;"><strong>Fecha de sorteo:</strong> {{ rifa.fecha_sorteo }}</p>
+        <p style="font-size: 13px;"><strong>Contacto:</strong> {{ rifa.numero_celular }}</p>
+
+        <a href="{% url 'detalle_rifa_usuario' rifa.id %}" style="background-color: #43A047; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; display: block; text-align: center; margin-top: 10px;">
+          🔍 Ver detalles
+        </a>
+      </div>
+    {% empty %}
+      <p style="color: white;">No hay rifas activas de otros usuarios.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<div class="rifa-buttons">
+  <a href="{% url 'crear_rifa' %}" class="crear">+ Publicar nueva rifa</a>
+  <a href="{% url 'mis_rifas' %}" class="mis-rifas">📂 Mis rifas</a>
+</div>
+
+{% endblock %}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("bubble-container");
+    if (!container) return;
+
+    for (let i = 0; i < 25; i++) {
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      const size = Math.floor(Math.random() * 120) + 30;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.top = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${(Math.random() * 10 + 5).toFixed(1)}s`;
+      container.appendChild(bubble);
+    }
+  });
+</script>

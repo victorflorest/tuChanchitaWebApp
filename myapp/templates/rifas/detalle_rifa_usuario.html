@@ -1,0 +1,134 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}{{ rifa.titulo }} - TuChanchita{% endblock %}
+
+{% block extra_css %}
+<style>
+  .bubble-container {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    animation: floatBubble infinite ease-in-out;
+    opacity: 0.25;
+  }
+
+  @keyframes floatBubble {
+    0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+    50% { transform: translate(-20px, -60px) scale(1.2); opacity: 0.5; }
+    100% { transform: translate(20px, -120px) scale(1); opacity: 0.1; }
+  }
+
+  .rifa-detail-container {
+    position: relative;
+    z-index: 2;
+    max-width: 500px;
+    margin: 50px auto;
+    background-color: rgba(255, 255, 255, 0.07);
+    color: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    backdrop-filter: blur(12px);
+  }
+
+  .rifa-detail-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    display: block;
+    margin: 15px auto;
+  }
+
+  .rifa-detail-container h2 {
+    color: #90caf9;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .rifa-detail-container p {
+    font-size: 15px;
+    margin: 10px 0;
+  }
+
+  .rifa-detail-container strong {
+    color: #ffffff;
+  }
+
+  .volver-btn {
+    display: inline-block;
+    margin-top: 30px;
+    background-color: #2196F3;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    text-align: center;
+  }
+
+  .section-title {
+    text-align: center;
+    font-weight: bold;
+    margin-top: 20px;
+    color: #4caf50;
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
+
+<div class="rifa-detail-container">
+  <h2>🎁 {{ rifa.titulo }}</h2>
+
+  {% if rifa.foto_premio %}
+    <img src="{{ rifa.foto_premio.url }}" alt="Foto del premio">
+  {% endif %}
+
+  <p><strong>Descripción:</strong> {{ rifa.descripcion }}</p>
+  <p><strong>Fecha de sorteo:</strong> {{ rifa.fecha_sorteo }}</p>
+  <p><strong>Estado:</strong> {{ rifa.get_estado_display }}</p>
+  <p><strong>Contacto:</strong> {{ rifa.numero_celular }}</p>
+
+  <hr style="margin: 25px 0;">
+
+  <h3 class="section-title">📱 Paga con Yape</h3>
+
+  {% if rifa.qr_yape %}
+    <img src="{{ rifa.qr_yape.url }}" alt="Código QR de Yape">
+  {% endif %}
+
+  <div style="text-align: center;">
+    <a href="{% url 'ver_rifas' %}" class="volver-btn">← Volver a Rifas</a>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("bubble-container");
+    for (let i = 0; i < 25; i++) {
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      const size = Math.floor(Math.random() * 100) + 40;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.top = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${(Math.random() * 6 + 4).toFixed(1)}s`;
+      container.appendChild(bubble);
+    }
+  });
+</script>
+{% endblock %}

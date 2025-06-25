@@ -48,6 +48,21 @@ from .models import PreguntaTrivia, PuntajeTrivia
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from django.utils.timezone import now
+from django.db.models import Sum
+from django.shortcuts import render
+from .models import UserProfile, Expense, PaymentMethod
+from .decorators import session_login_required
+import re
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
+from .models import Rifa
+from .forms import RifaForm
+from django.core.mail import send_mail
+from django.urls import reverse
+
+
 
 from .models import (
     UserProfile, Expense, PaymentMethod, Challenge,
@@ -139,27 +154,73 @@ def login_view(request):
             try:
                 user = UserProfile.objects.get(email=email)
 
+                # Si el usuario ya está bloqueado:
+                if user.is_blocked:
+                    form.add_error(None, 'Este usuario ha sido bloqueado por demasiados intentos fallidos. Revisa tu correo para más información.')
+                    return render(request, 'login.html', {'form': form})
+
                 if check_password(password, user.password):
+                    # LOGIN CORRECTO → resetear intentos y desbloquear por si acaso
+                    user.login_attempts = 0
+                    user.is_blocked = False
+                    user.save()
+
                     request.session['user_id'] = user.id
                     return redirect('dashboard')
+
                 else:
-                    form.add_error(None, 'Contraseña incorrecta')
+                    # Contraseña incorrecta → sumar intento
+                    user.login_attempts += 1
+                    user.save()
+
+                    # Si llegó al intento 3:
+                    if user.login_attempts >= 3:
+                        user.is_blocked = True
+                        user.save()
+
+                        # Enviar email de aviso
+                        send_mail(
+                            subject='🚨 Alerta de seguridad en TuChanchita',
+                            message=f'''
+Hola {user.first_name},
+
+Hemos detectado 4 intentos fallidos de inicio de sesión en tu cuenta.
+
+Por seguridad, tu cuenta ha sido temporalmente bloqueada.
+
+Si fuiste tú, te recomendamos restablecer tu contraseña.
+
+Si no fuiste tú, contáctanos de inmediato.
+
+Puedes recuperar el acceso usando "Olvidé mi contraseña".
+
+El equipo de TuChanchita 💰
+''',
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[user.email],
+                            fail_silently=False,
+                        )
+
+                        form.add_error(None, 'Has superado el número de intentos permitidos. Se ha enviado un correo con más información.')
+                    else:
+                        form.add_error(None, f'Contraseña incorrecta. Intento {user.login_attempts}/3.')
 
             except UserProfile.DoesNotExist:
-                form.add_error('email', 'No existe un usuario con este correo electrónico')
+                form.add_error('email', 'No existe un usuario con este correo electrónico.')
     else:
         form = LoginForm()
 
     return render(request, 'login.html', {'form': form})
-
 
 def logout_view(request):
     request.session.flush()
     return redirect('login')
 
 # ----------------- Dashboard -----------------
+@session_login_required
 def dashboard_view(request):
     user = UserProfile.objects.get(id=request.session['user_id'])
+
     hoy = now()
     inicio_mes = hoy.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     if hoy.month == 12:
@@ -182,7 +243,6 @@ def dashboard_view(request):
         'cards': cards,
         'puntos': user.points
     })
-
 # ----------------- Perfil -----------------
 def profile_view(request):
     user = UserProfile.objects.get(id=request.session['user_id'])
@@ -737,15 +797,15 @@ def solicitar_reset_contrasena(request):
             link = request.build_absolute_uri(f"/resetear/{uid}/{token}/")
 
             send_mail(
-                "Recupera tu contrase帽a",
-                f"Haz clic en el siguiente enlace para restablecer tu contrase帽a:\n{link}",
+                "Recupera tu contraseña",
+                f"Haz clic en el siguiente enlace para restablecer tu contraseña:\n{link}",
                 "gianfranco22.ft@gmail.com",
                 [user.email],
                 fail_silently=False,
             )
-            mensaje = "鉁?Se ha enviado un enlace a tu correo para restablecer tu contrase帽a."
+            mensaje = "Se ha enviado un enlace a tu correo para restablecer tu contraseña."
         except UserProfile.DoesNotExist:
-            mensaje = "鉂?No existe un usuario con ese correo."
+            mensaje = "No existe un usuario con ese correo."
     return render(request, "olvide_contrasena.html", {"mensaje": mensaje})
 
 def resetear_contrasena(request, uidb64, token):
@@ -761,17 +821,35 @@ def resetear_contrasena(request, uidb64, token):
             nueva_contrasena = request.POST.get("nueva_contrasena")
             confirmar_contrasena = request.POST.get("confirmar_contrasena")
 
-            if nueva_contrasena and nueva_contrasena == confirmar_contrasena:
-                user.password = make_password(nueva_contrasena)  # 馃憟 puedes cifrar si luego haces login
-                user.save()
-                mensaje = "鉁?Contrase帽a restablecida correctamente. Puedes iniciar sesi贸n."
-                return redirect("login")  # Aseg煤rate que esta ruta exista
+            if not nueva_contrasena or not confirmar_contrasena:
+                mensaje = "Debes completar ambos campos de contraseña."
+            elif nueva_contrasena != confirmar_contrasena:
+                mensaje = "Las contraseñas no coinciden."
             else:
-                mensaje = "鉂?Las contrase帽as no coinciden."
+                # Validación de la contraseña
+                if len(nueva_contrasena) < 8:
+                    mensaje = "La contraseña debe tener al menos 8 caracteres."
+                elif not re.search(r'[A-Z]', nueva_contrasena):
+                    mensaje = "La contraseña debe contener al menos una letra mayúscula."
+                elif not re.search(r'[0-9]', nueva_contrasena):
+                    mensaje = "La contraseña debe contener al menos un número."
+                elif not re.search(r'[!@#$%^&*()_+\-=\[\]{};\'\\:"|<>,./?]', nueva_contrasena):
+                    mensaje = "La contraseña debe contener al menos un carácter especial."
+                elif check_password(nueva_contrasena, user.password):
+                    mensaje = "La nueva contraseña no puede ser igual a la anterior."
+                else:
+                    # Guardar la nueva contraseña Y desbloquear usuario
+                    user.password = make_password(nueva_contrasena)
+                    user.login_attempts = 0
+                    user.is_blocked = False
+                    user.save()
+
+                    mensaje = "Contraseña restablecida correctamente. Puedes iniciar sesión."
+                    return redirect("login")
+
         return render(request, "resetear_contrasena.html", {"validlink": True, "mensaje": mensaje})
     else:
         return render(request, "resetear_contrasena.html", {"validlink": False})
-    
 #-----------------------------------
 #Eliminación de tarjeta
 
@@ -791,3 +869,163 @@ def delete_card(request, card_id):
 
     # Redirigir al perfil
     return redirect('profile')  # Asegúrate de tener la URL correcta
+
+
+
+@session_login_required
+def crear_rifa(request):
+    user = UserProfile.objects.get(id=request.session['user_id'])
+
+    if request.method == 'POST':
+        form = RifaForm(request.POST, request.FILES)
+        if form.is_valid():
+            rifa = form.save(commit=False)
+            rifa.creado_por = user
+            rifa.save()
+
+            # ✅ Enviar correo al equipo para revisar
+            admin_link = request.build_absolute_uri(
+                reverse('revisar_rifa', args=[rifa.id])
+            )
+
+            send_mail(
+                subject='📬 Nueva solicitud de rifa en TuChanchita',
+                message=f"""
+¡Hola equipo!
+
+Un nuevo usuario ha enviado una solicitud para publicar una rifa.
+
+📌 Título: {rifa.titulo}
+👤 Usuario: {user.first_name} {user.last_name} ({user.email})
+📅 Fecha del sorteo: {rifa.fecha_sorteo}
+
+Pueden revisarla y aprobarla aquí:
+{admin_link}
+
+TuChanchita 💰
+""",
+                from_email=settings.DEFAULT_FROM_EMAIL,  # o settings.DEFAULT_FROM_EMAIL
+                recipient_list=[settings.DEFAULT_FROM_EMAIL],  # ← cambia por tu correo real
+                fail_silently=False,
+            )
+
+            return render(request, 'rifas/solicitud_enviada.html')
+    else:
+        form = RifaForm()
+    return render(request, 'rifas/crear_rifa.html', {'form': form})
+
+@session_login_required
+def ver_rifas(request):
+    user_id = request.session['user_id']
+
+    # Buscar las rifas en las que el usuario está participando (a través de la relación con Participante)
+    rifas = Rifa.objects.filter(participante__user__id=user_id).order_by('-fecha_creacion')
+
+    # Buscar todas las rifas activas (publicadas por otros usuarios)
+    otras_rifas = Rifa.objects.filter(estado='aprobado').exclude(creado_por_id=user_id).order_by('-fecha_creacion')
+
+    return render(request, 'rifas/ver_rifas.html', {'rifas': rifas, 'otras_rifas': otras_rifas})
+
+
+@staff_member_required
+def aprobar_rifa(request, rifa_id):
+    rifa = get_object_or_404(Rifa, id=rifa_id)
+    rifa.estado = 'aprobado'
+    rifa.save()
+    return render(request, 'rifas/aprobacion_exitosa.html', {'rifa': rifa})
+
+@staff_member_required
+def revisar_rifa(request, rifa_id):
+    rifa = get_object_or_404(Rifa, id=rifa_id)
+
+    if request.method == 'POST':
+        accion = request.POST.get('accion')
+        if accion == 'aprobar':
+            rifa.estado = 'aprobado'
+        elif accion == 'rechazar':
+            rifa.estado = 'rechazado'
+        rifa.save()
+        return render(request, 'rifas/aprobacion_exitosa.html', {'rifa': rifa})
+
+    return render(request, 'rifas/revisar_rifa.html', {'rifa': rifa})
+
+
+@session_login_required
+def mis_rifas(request):
+    user_id = request.session['user_id']
+    rifas = Rifa.objects.filter(creado_por_id=user_id).order_by('-fecha_creacion')
+    return render(request, 'rifas/mis_rifas.html', {'rifas': rifas})
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Rifa, Participante
+from .forms import ParticipanteForm
+
+def detalle_rifa(request, rifa_id):
+    rifa = get_object_or_404(Rifa, id=rifa_id)
+
+    if request.method == 'POST':
+        form = ParticipanteForm(request.POST)
+        if form.is_valid():
+            participante = form.save(commit=False)
+            participante.rifa = rifa
+            participante.save()
+            return redirect('detalle_rifa', rifa_id=rifa.id)
+    else:
+        form = ParticipanteForm()
+
+    participantes = Participante.objects.filter(rifa=rifa)
+
+    return render(request, 'rifas/detalle_rifa.html', {
+        'rifa': rifa,
+        'form': form,
+        'participantes': participantes,
+    })
+
+import openpyxl
+from django.http import HttpResponse
+from .models import Participante
+
+def exportar_participantes_excel(request, rifa_id):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Participantes"
+
+    encabezados = ['Nombres', 'Apellidos', 'DNI', 'Correo', 'Celular', 'Medio de Pago', 'Nro Operación', 'Fecha de Pago', 'Nro de Rifa']
+    ws.append(encabezados)
+
+    participantes = Participante.objects.filter(rifa_id=rifa_id)
+    for p in participantes:
+        ws.append([
+            p.nombres,
+            p.apellidos,
+            p.dni,
+            p.correo,
+            p.celular,
+            p.metodo_pago,
+            p.numero_operacion,
+            p.fecha_pago.strftime('%d/%m/%Y'),
+            p.numero_rifa,
+        ])
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename=participantes_rifa_{rifa_id}.xlsx'
+    wb.save(response)
+    return response
+
+import random
+from django.contrib import messages
+from django.shortcuts import redirect
+
+def elegir_ganador(request, rifa_id):
+    participantes = Participante.objects.filter(rifa_id=rifa_id)
+    if participantes.exists():
+        ganador = random.choice(participantes)
+        messages.success(request, f'🎉 El ganador es {ganador.nombres} {ganador.apellidos}, N° de rifa: {ganador.numero_rifa}')
+    else:
+        messages.warning(request, 'No hay participantes para esta rifa.')
+    return redirect('revisar_rifa', rifa_id=rifa_id)
+
+def detalle_rifa_usuario(request, rifa_id):
+    rifa = get_object_or_404(Rifa, id=rifa_id, estado='aprobado')  # opcional: solo rifas aprobadas
+    return render(request, 'rifas/detalle_rifa_usuario.html', {'rifa': rifa})
