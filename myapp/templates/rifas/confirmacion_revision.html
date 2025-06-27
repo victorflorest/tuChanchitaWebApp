@@ -1,9 +1,11 @@
 {% extends 'layout/base.html' %}
 
-{% block title %}Solicitud enviada - TuChanchita{% endblock %}
+{% block title %}Resultado de revisión - TuChanchita{% endblock %}
 
 {% block extra_css %}
 <style>
+  nav { display: none !important; }  /* 👈 Oculta el navbar solo en esta vista */
+
   .bubble-container {
     position: fixed;
     width: 100%;
@@ -14,7 +16,6 @@
     pointer-events: none;
     overflow: hidden;
   }
-
   .bubble {
     position: absolute;
     border-radius: 50%;
@@ -22,18 +23,16 @@
     animation: floatBubble infinite ease-in-out;
     opacity: 0.25;
   }
-
   @keyframes floatBubble {
     0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
     50% { transform: translate(-20px, -60px) scale(1.2); opacity: 0.5; }
     100% { transform: translate(20px, -120px) scale(1); opacity: 0.1; }
   }
-
-  .success-container {
+  .confirm-container {
     position: relative;
     z-index: 2;
     max-width: 500px;
-    margin: 100px auto;
+    margin: 80px auto;
     background-color: rgba(255, 255, 255, 0.07);
     color: white;
     border-radius: 15px;
@@ -42,30 +41,26 @@
     backdrop-filter: blur(12px);
     text-align: center;
   }
-
-  .success-container h2 {
-    font-size: 24px;
-    color: #4caf50;
+  .confirm-container h2 {
+    color: #90caf9;
     margin-bottom: 20px;
   }
-
-  .success-container p {
+  .confirm-container p {
     font-size: 16px;
     margin-bottom: 30px;
   }
-
-  .success-container a {
-    background-color: #2196F3;
+  .confirm-container a {
+    display: inline-block;
+    background-color: #4CAF50;
     color: white;
-    padding: 12px 24px;
+    padding: 10px 20px;
     border-radius: 8px;
     text-decoration: none;
     font-weight: bold;
-    transition: background-color 0.3s ease;
+    transition: background 0.3s ease;
   }
-
-  .success-container a:hover {
-    background-color: #1976D2;
+  .confirm-container a:hover {
+    background-color: #43A047;
   }
 </style>
 {% endblock %}
@@ -73,10 +68,18 @@
 {% block content %}
 <div class="bubble-container" id="bubble-container"></div>
 
-<div class="success-container">
-  <h2>🎉 ¡Solicitud enviada con éxito!</h2>
-  <p>Tu solicitud de rifa ha sido enviada. El equipo de TuChanchita la revisará pronto.</p>
-  <a href="{% url 'ver_rifas' %}">🔍 Ver rifas activas</a>
+<div class="confirm-container">
+  {% if mensaje == 'aprobada' %}
+    <h2>✅ Rifa Aprobada</h2>
+    <p>La rifa <strong>{{ rifa.titulo }}</strong> ha sido aprobada correctamente.</p>
+  {% elif mensaje == 'rechazada' %}
+    <h2>❌ Rifa Rechazada</h2>
+    <p>La rifa <strong>{{ rifa.titulo }}</strong> ha sido rechazada.</p>
+  {% else %}
+    <h2>⚠️ Acción desconocida</h2>
+    <p>No se pudo procesar la solicitud. Por favor, inténtalo nuevamente.</p>
+  {% endif %}
+  <a href="/admin/">Volver al panel de administración</a>
 </div>
 
 <script>

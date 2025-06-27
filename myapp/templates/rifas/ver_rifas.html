@@ -25,18 +25,9 @@
   }
 
   @keyframes floatBubble {
-    0% {
-      transform: translate(0, 0) scale(1);
-      opacity: 0.3;
-    }
-    50% {
-      transform: translate(-20px, -60px) scale(1.2);
-      opacity: 0.5;
-    }
-    100% {
-      transform: translate(20px, -120px) scale(1);
-      opacity: 0.1;
-    }
+    0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+    50% { transform: translate(-20px, -60px) scale(1.2); opacity: 0.5; }
+    100% { transform: translate(20px, -120px) scale(1); opacity: 0.1; }
   }
 
   .rifa-section {
@@ -60,6 +51,7 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
     transition: transform 0.3s ease;
+    position: relative;
   }
 
   .rifa-card:hover {
@@ -72,6 +64,21 @@
     object-fit: cover;
     border-radius: 10px;
     margin-bottom: 10px;
+  }
+
+  .ganador-box {
+    background-color: rgba(76, 175, 80, 0.3);
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  .ganador-box p {
+    font-size: 13px;
+    font-weight: bold;
+    color: #ffffff;
+    margin: 5px 0 0 0;
   }
 
   .rifa-buttons {
@@ -89,46 +96,14 @@
     display: inline-block;
   }
 
-  .crear {
-    background-color: #4CAF50;
-  }
-
-  .mis-rifas {
-    background-color: #2196F3;
-  }
+  .crear { background-color: #4CAF50; }
+  .mis-rifas { background-color: #2196F3; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="bubble-container" id="bubble-container"></div>
 
-<section class="rifa-section">
-  <h2>🎁 Rifas en las que Participas</h2>
-
-  <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
-    {% for rifa in rifas %}
-      <div class="rifa-card">
-        <h4 style="color: #8ab4f8; text-align: center;">{{ rifa.titulo }}</h4>
-
-        {% if rifa.foto_premio %}
-          <img src="{{ rifa.foto_premio.url }}" alt="Premio">
-        {% endif %}
-
-        <p style="font-size: 13px; color: #ddd; text-align: center;">{{ rifa.descripcion }}</p>
-        <p style="font-size: 13px;"><strong>Fecha de sorteo:</strong> {{ rifa.fecha_sorteo }}</p>
-        <p style="font-size: 13px;"><strong>Contacto:</strong> {{ rifa.numero_celular }}</p>
-
-        <p style="font-size: 13px; color: orange; text-align: center;">📝 Estás participando en esta rifa</p>
-
-        <a href="{% url 'detalle_rifa_usuario' rifa.id %}" style="background-color: #43A047; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; display: block; text-align: center; margin-top: 10px;">
-          🔍 Ver detalles
-        </a>
-      </div>
-    {% empty %}
-      <p style="color: white;">No estás participando en ninguna rifa activa.</p>
-    {% endfor %}
-  </div>
-</section>
 
 <section class="rifa-section">
   <h2>🔔 Rifas Activas de Otros Usuarios</h2>
@@ -143,8 +118,15 @@
         {% endif %}
 
         <p style="font-size: 13px; color: #ddd; text-align: center;">{{ rifa.descripcion }}</p>
+        <p style="font-size: 13px;"><strong>Precio por número:</strong> S/. {{ rifa.precio_numero }}</p>
         <p style="font-size: 13px;"><strong>Fecha de sorteo:</strong> {{ rifa.fecha_sorteo }}</p>
         <p style="font-size: 13px;"><strong>Contacto:</strong> {{ rifa.numero_celular }}</p>
+
+        {% if rifa.ganador %}
+          <div class="ganador-box">
+            <p>🏆 Ganador: {{ rifa.ganador.nombres }} {{ rifa.ganador.apellidos }}</p>
+          </div>
+        {% endif %}
 
         <a href="{% url 'detalle_rifa_usuario' rifa.id %}" style="background-color: #43A047; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; display: block; text-align: center; margin-top: 10px;">
           🔍 Ver detalles
@@ -156,12 +138,45 @@
   </div>
 </section>
 
+<section class="rifa-section">
+  <h2>🎁 Rifas en las que Participas</h2>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+    {% for rifa in rifas %}
+      <div class="rifa-card">
+        <h4 style="color: #8ab4f8; text-align: center;">{{ rifa.titulo }}</h4>
+
+        {% if rifa.foto_premio %}
+          <img src="{{ rifa.foto_premio.url }}" alt="Premio">
+        {% endif %}
+
+        <p style="font-size: 13px;"><strong>Precio por número:</strong> S/. {{ rifa.precio_numero }}</p>
+        <p style="font-size: 13px;"><strong>Fecha de sorteo:</strong> {{ rifa.fecha_sorteo }}</p>
+        <p style="font-size: 13px;"><strong>Contacto:</strong> {{ rifa.numero_celular }}</p>
+
+        {% if rifa.ganador %}
+          <div class="ganador-box">
+            <p>🏆 Ganador: {{ rifa.ganador.nombres }} {{ rifa.ganador.apellidos }}</p>
+          </div>
+        {% else %}
+          <p style="font-size: 13px; color: orange; text-align: center;">📝 Estás participando en esta rifa</p>
+        {% endif %}
+
+        <a href="{% url 'detalle_rifa_usuario' rifa.id %}" style="background-color: #43A047; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; display: block; text-align: center; margin-top: 10px;">
+          🔍 Ver detalles
+        </a>
+      </div>
+    {% empty %}
+      <p style="color: white;">No estás participando en ninguna rifa activa.</p>
+    {% endfor %}
+  </div>
+</section>
+
+
 <div class="rifa-buttons">
   <a href="{% url 'crear_rifa' %}" class="crear">+ Publicar nueva rifa</a>
   <a href="{% url 'mis_rifas' %}" class="mis-rifas">📂 Mis rifas</a>
 </div>
-
-{% endblock %}
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -181,3 +196,6 @@
     }
   });
 </script>
+{% endblock %}
+
+

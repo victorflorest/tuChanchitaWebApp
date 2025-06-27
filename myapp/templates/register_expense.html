@@ -14,7 +14,7 @@
   <section class="login-container">
     <h2>Registrar nuevo gasto</h2>
 
-    <form method="post">
+    <form method="post" id="gasto-form">
       {% csrf_token %}
       {{ form.non_field_errors }}
 
@@ -47,17 +47,50 @@
 </main>
 
 <script>
-  const container = document.getElementById("bubble-container");
-  for (let i = 0; i < 20; i++) {
-    const bubble = document.createElement("div");
-    bubble.classList.add("bubble");
-    const size = Math.floor(Math.random() * 150) + 50;
-    bubble.style.width = `${size}px`;
-    bubble.style.height = `${size}px`;
-    bubble.style.top = `${Math.random() * 100}%`;
-    bubble.style.left = `${Math.random() * 100}%`;
-    bubble.style.animationDuration = `${(Math.random() * 1.5 + 3.5).toFixed(1)}s`;
-    container.appendChild(bubble);
-  }
+  document.addEventListener("DOMContentLoaded", function () {
+    // Burbujas de fondo
+    const container = document.getElementById("bubble-container");
+    for (let i = 0; i < 20; i++) {
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      const size = Math.floor(Math.random() * 150) + 50;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.top = `${Math.random() * 100}%`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${(Math.random() * 1.5 + 3.5).toFixed(1)}s`;
+      container.appendChild(bubble);
+    }
+
+    // Variables del límite y gasto actual (inyectadas desde el servidor)
+    const totalMes = parseFloat("{{ total_mes|default:0 }}");
+    const limiteMensual = parseFloat("{{ limite_mensual|default:0 }}");
+
+    // Monto
+    const montoField = document.getElementById("{{ form.amount.id_for_label }}");
+    if (montoField) {
+      montoField.setAttribute("min", "0");
+      montoField.setAttribute("step", "0.01");
+    }
+
+    const form = document.getElementById("gasto-form");
+    form.addEventListener("submit", function (e) {
+      const nuevoGasto = parseFloat(montoField.value);
+      if (isNaN(nuevoGasto) || nuevoGasto < 0) {
+        alert("Por favor ingresa un monto válido mayor o igual a 0.");
+        e.preventDefault();
+        return;
+      }
+
+      if (limiteMensual > 0 && totalMes + nuevoGasto > limiteMensual) {
+        const confirma = confirm(
+          "⚠️ Con este gasto superarás tu límite mensual. ¿Estás seguro de que deseas continuar?"
+        );
+        if (!confirma) {
+          e.preventDefault();
+        }
+      }
+    });
+  });
 </script>
 {% endblock %}

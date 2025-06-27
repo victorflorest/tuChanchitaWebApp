@@ -4,6 +4,12 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'styles/dashboard.css' %}">
+<style>
+  .exceeded {
+    background-color: rgba(244, 67, 54, 0.3);  /* rojo suave */
+    border: 1px solid #f44336;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -20,7 +26,8 @@
       <h4>Límite mensual</h4>
       <p>S/. {{ user.monthly_limit }}</p>
     </div>
-    <div class="card">
+
+    <div class="card {% if total_mes > user.monthly_limit %}exceeded{% endif %}">
       <h4>Gasto total este mes</h4>
       <p>S/. {{ total_mes }}</p>
     </div>

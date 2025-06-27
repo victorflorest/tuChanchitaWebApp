@@ -49,33 +49,69 @@
   }
 
   .detalle-section img {
-    display: block;
-    max-width: 300px;
+  display: block;
+  width: 250px;       /* 👈 Ancho fijo */
+  height: 250px;      /* 👈 Alto fijo para cuadrado */
+  object-fit: cover;  /* 👈 Ajusta la imagen manteniendo proporciones sin deformarla */
+  margin: 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  } 
+
+  .detalle-section p {
+    margin: 10px 0;
+    font-size: 15px;
+  }
+
+  .busqueda-form p,
+  .busqueda-form button {
     width: 100%;
-    margin: 20px auto;
-    border-radius: 12px;
+    margin-top: 10px;
   }
 
-  form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 20px;
-  }
-
-  form p {
-    display: flex;
-    flex-direction: column;
-  }
-
-  input, select {
+  .busqueda-form input {
+    width: 100%;
     padding: 10px;
     border-radius: 8px;
     border: none;
     font-size: 15px;
   }
 
-  button[type="submit"] {
+  .busqueda-form button {
+    background: #1976D2;
+    color: white;
+    padding: 10px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  .participante-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  .participante-form p {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .participante-form input,
+  .participante-form select {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+    max-width: 100%;  /* evita desbordes */
+    width: 100%;      /* asegura consistencia */
+    box-sizing: border-box;
+  }
+
+  .participante-form button[type="submit"] {
     grid-column: span 2;
     background: #4CAF50;
     color: white;
@@ -86,12 +122,12 @@
     cursor: pointer;
   }
 
-  @media (max-width: 600px) {
-    form {
+  /* Cambia a una columna en pantallas menores a 900px */
+  @media (max-width: 900px) {
+    .participante-form {
       grid-template-columns: 1fr;
     }
-
-    button[type="submit"] {
+    .participante-form button[type="submit"] {
       grid-column: span 1;
     }
   }
@@ -110,26 +146,6 @@
     text-decoration: none;
     color: white;
     font-weight: bold;
-  }
-
-  ul {
-    background-color: rgba(255, 255, 255, 0.04);
-    padding: 15px;
-    border-radius: 10px;
-  }
-
-  ul li {
-    margin-bottom: 10px;
-  }
-
-  .volver {
-    text-align: center;
-    margin-top: 25px;
-  }
-
-  .volver a {
-    color: #8ab4f8;
-    text-decoration: underline;
   }
 
   .tarjetas-participantes {
@@ -159,6 +175,15 @@
     font-size: 14px;
   }
 
+  .volver {
+    text-align: center;
+    margin-top: 25px;
+  }
+
+  .volver a {
+    color: #8ab4f8;
+    text-decoration: underline;
+  }
 </style>
 {% endblock %}
 
@@ -166,22 +191,30 @@
 <div class="bubble-container" id="bubble-container"></div>
 
 <section class="detalle-section">
-  <h2>🎟️ {{ rifa.titulo }}</h2>
+  <h2>{{ rifa.titulo }}</h2>
+
+  {% if rifa.foto_premio %}
+    <img src="{{ rifa.foto_premio.url }}" alt="Foto del premio">
+  {% endif %}
 
   <p><strong>Descripción:</strong> {{ rifa.descripcion }}</p>
+  <p><strong>Precio por número:</strong> S/. {{ rifa.precio_numero }}</p>
   <p><strong>Fecha Sorteo:</strong> {{ rifa.fecha_sorteo }}</p>
   <p><strong>Estado:</strong> {{ rifa.get_estado_display }}</p>
   <p><strong>Celular:</strong> {{ rifa.numero_celular }}</p>
 
-  {% if rifa.qr_yape %}
-    <h3>📱 Paga con Yape</h3>
-    <img src="{{ rifa.qr_yape.url }}" alt="QR Yape">
+  {% if rifa.ganador %}
+  <div style="background-color: rgba(76, 175, 80, 0.3); padding: 15px; border-radius: 12px; margin: 20px 0; text-align: center;">
+    <h3>🏆 Ganador de la Rifa:</h3>
+    <p style="font-size: 18px;"><strong>{{ rifa.ganador.nombres }} {{ rifa.ganador.apellidos }}</strong></p>
+    <p>Número de rifa: #{{ rifa.ganador.numero_rifa }}</p>
+  </div>
   {% endif %}
 
   <hr>
-  <h3>📝 Añadir Participante</h3>
+  <h3>🔎 Buscar Usuario</h3>
 
-  <form method="get" action="{% url 'detalle_rifa' rifa.id %}">
+  <form method="get" action="{% url 'detalle_rifa' rifa.id %}" class="busqueda-form">
     {% csrf_token %}
     <p>
       <label for="email">Buscar por Correo</label>
@@ -192,7 +225,9 @@
 
   <hr>
 
-  <form method="post">
+  <h3>📝 Añadir Participante</h3>
+
+  <form method="post" class="participante-form">
     {% csrf_token %}
     {% for field in form %}
       <p>
@@ -210,7 +245,11 @@
 
   <div class="acciones">
     <a href="{% url 'exportar_participantes_excel' rifa.id %}" style="background-color: #1976D2;">📥 Exportar a Excel</a>
-    <a href="{% url 'elegir_ganador' rifa.id %}" style="background-color: #43A047;">🎯 Elegir Ganador</a>
+    <a href="{% url 'elegir_ganador' rifa.id %}" 
+   style="background-color: #43A047;"
+   onclick="return confirm('¿Estás seguro que quieres elegir un ganador? Esta acción es irreversible y solo puede hacerse una vez.')">
+   🎯 Elegir Ganador
+</a>
   </div>
 
   <h3>👥 Participantes</h3>

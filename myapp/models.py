@@ -215,7 +215,12 @@ class Rifa(models.Model):
     estado = models.CharField(max_length=10, choices=ESTADOS, default='pendiente')
     creado_por = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
-
+    precio_numero = models.FloatField(help_text="Precio de cada número de rifa", default=0.0)
+    ganador = models.ForeignKey(
+        'Participante', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='rifas_ganadas'
+    )
+    
     def __str__(self):
         return self.titulo
 

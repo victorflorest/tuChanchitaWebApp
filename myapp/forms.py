@@ -213,6 +213,7 @@ class ExpenseForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'input-field'}),
             'store_name': forms.TextInput(attrs={'placeholder': 'Tienda o servicio', 'class': 'input-field'}),
         }
+    
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -240,9 +241,16 @@ class RifaForm(forms.ModelForm):
     class Meta:
         model = Rifa
         fields = [
-            'titulo', 'descripcion', 'fecha_sorteo','foto_premio',
-            'qr_yape', 'dni', 'numero_celular',
-            'foto_dni', 'selfie_con_dni'
+            'titulo',
+            'descripcion',
+            'precio_numero',      
+            'fecha_sorteo',
+            'foto_premio',
+            'qr_yape',
+            'dni',
+            'numero_celular',
+            'foto_dni',
+            'selfie_con_dni',
         ]
         widgets = {
             'fecha_sorteo': forms.DateInput(attrs={'type': 'date'}),
@@ -264,11 +272,10 @@ class ParticipanteForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
-        email_search = kwargs.pop('email_search', '')  # Buscar por correo si se pasa un email
+        email_search = kwargs.pop('email_search', '')  # obtiene el argumento personalizado
         super().__init__(*args, **kwargs)
-        
-        # Si hay un email de búsqueda, filtramos los usuarios por correo
+
         if email_search:
             self.fields['user'].queryset = UserProfile.objects.filter(email__icontains=email_search)
         else:
-            self.fields['user'].queryset = UserProfile.objects.all()  # Si no, mostrar todos
+            self.fields['user'].queryset = UserProfile.objects.none()

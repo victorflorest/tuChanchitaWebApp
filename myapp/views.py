@@ -316,22 +316,45 @@ def add_card_view(request):
 def register_expense_view(request):
     user = UserProfile.objects.get(id=request.session['user_id'])
 
+    now = timezone.now()
+    inicio_mes = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    total_mes = Expense.objects.filter(
+        user=user,
+        date__gte=inicio_mes,
+        date__lte=now
+    ).aggregate(total=Sum('amount'))['total'] or 0
+
+    limite_mensual = getattr(user, 'monthly_limit', 0) or 0
+
     if request.method == 'POST':
         form = ExpenseForm(request.POST, user=user)
         if form.is_valid():
             gasto = form.save(commit=False)
             gasto.user = user
-            gasto.date = timezone.now()  # usa datetime completo
-            gasto.save()
+            gasto.date = timezone.now()
+            
+            # Calcular total con este gasto para verificar límite
+            nuevo_total = total_mes + gasto.amount
+            
+            if nuevo_total > limite_mensual:
+                # Aquí puedes enviar un mensaje o controlar en frontend (recomendado)
+                # Para enviar mensaje:
+                from django.contrib import messages
+                messages.warning(request, '⚠️ ¡Atención! Este gasto supera tu límite mensual.')
 
-            # Verifica y actualiza retos después del gasto
+            gasto.save()
             actualizar_retos_usuario(user)
 
             return redirect('dashboard')
     else:
         form = ExpenseForm(user=user)
 
-    return render(request, 'register_expense.html', {'form': form})
+    return render(request, 'register_expense.html', {
+        'form': form,
+        'total_mes': total_mes,
+        'limite_mensual': limite_mensual,
+    })
 
 # ----------------- Reportes -----------------
 def reports_view(request):
@@ -799,7 +822,7 @@ def solicitar_reset_contrasena(request):
             send_mail(
                 "Recupera tu contraseña",
                 f"Haz clic en el siguiente enlace para restablecer tu contraseña:\n{link}",
-                "gianfranco22.ft@gmail.com",
+                settings.DEFAULT_FROM_EMAIL,
                 [user.email],
                 fail_silently=False,
             )
@@ -927,25 +950,51 @@ def ver_rifas(request):
     return render(request, 'rifas/ver_rifas.html', {'rifas': rifas, 'otras_rifas': otras_rifas})
 
 
-@staff_member_required
-def aprobar_rifa(request, rifa_id):
-    rifa = get_object_or_404(Rifa, id=rifa_id)
-    rifa.estado = 'aprobado'
-    rifa.save()
-    return render(request, 'rifas/aprobacion_exitosa.html', {'rifa': rifa})
 
 @staff_member_required
 def revisar_rifa(request, rifa_id):
     rifa = get_object_or_404(Rifa, id=rifa_id)
 
+    mensaje = None
+
     if request.method == 'POST':
         accion = request.POST.get('accion')
         if accion == 'aprobar':
             rifa.estado = 'aprobado'
+            rifa.save()
+            mensaje = 'aprobada'
         elif accion == 'rechazar':
             rifa.estado = 'rechazado'
-        rifa.save()
-        return render(request, 'rifas/aprobacion_exitosa.html', {'rifa': rifa})
+            rifa.save()
+            mensaje = 'rechazada'
+        else:
+            mensaje = 'desconocida'
+
+    return render(request, 'rifas/revisar_rifa.html', {'rifa': rifa, 'mensaje': mensaje})
+
+@staff_member_required
+def revisar_rifa(request, rifa_id):
+    rifa = get_object_or_404(Rifa, id=rifa_id)
+
+    mensaje = None
+
+    if request.method == 'POST':
+        accion = request.POST.get('accion')
+        if accion == 'aprobar':
+            rifa.estado = 'aprobado'
+            rifa.save()
+            mensaje = 'aprobada'
+        elif accion == 'rechazar':
+            rifa.estado = 'rechazado'
+            rifa.save()
+            mensaje = 'rechazada'
+        else:
+            mensaje = 'desconocida'
+
+        return render(request, 'rifas/confirmacion_revision.html', {
+            'rifa': rifa,
+            'mensaje': mensaje,
+        })
 
     return render(request, 'rifas/revisar_rifa.html', {'rifa': rifa})
 
@@ -963,16 +1012,17 @@ from .forms import ParticipanteForm
 
 def detalle_rifa(request, rifa_id):
     rifa = get_object_or_404(Rifa, id=rifa_id)
+    email = request.GET.get('email', '')  # obtiene el correo de búsqueda desde el GET
 
     if request.method == 'POST':
-        form = ParticipanteForm(request.POST)
+        form = ParticipanteForm(request.POST, email_search=email)
         if form.is_valid():
             participante = form.save(commit=False)
             participante.rifa = rifa
             participante.save()
             return redirect('detalle_rifa', rifa_id=rifa.id)
     else:
-        form = ParticipanteForm()
+        form = ParticipanteForm(email_search=email)  # pasa el email_search aquí
 
     participantes = Participante.objects.filter(rifa=rifa)
 
@@ -981,6 +1031,7 @@ def detalle_rifa(request, rifa_id):
         'form': form,
         'participantes': participantes,
     })
+
 
 import openpyxl
 from django.http import HttpResponse
@@ -1017,15 +1068,48 @@ import random
 from django.contrib import messages
 from django.shortcuts import redirect
 
-def elegir_ganador(request, rifa_id):
-    participantes = Participante.objects.filter(rifa_id=rifa_id)
-    if participantes.exists():
-        ganador = random.choice(participantes)
-        messages.success(request, f'🎉 El ganador es {ganador.nombres} {ganador.apellidos}, N° de rifa: {ganador.numero_rifa}')
-    else:
-        messages.warning(request, 'No hay participantes para esta rifa.')
-    return redirect('revisar_rifa', rifa_id=rifa_id)
 
 def detalle_rifa_usuario(request, rifa_id):
     rifa = get_object_or_404(Rifa, id=rifa_id, estado='aprobado')  # opcional: solo rifas aprobadas
     return render(request, 'rifas/detalle_rifa_usuario.html', {'rifa': rifa})
+
+def elegir_ganador(request, rifa_id):
+    rifa = get_object_or_404(Rifa, id=rifa_id)
+    
+    if rifa.ganador:
+        messages.error(request, f'La rifa ya tiene un ganador: {rifa.ganador.nombres} {rifa.ganador.apellidos}')
+    else:
+        participantes = Participante.objects.filter(rifa=rifa)
+        if participantes.exists():
+            ganador = random.choice(list(participantes))
+            rifa.ganador = ganador
+            rifa.save()
+
+            # Mensaje para el admin
+            messages.success(request, f'🎉 Ganador elegido: {ganador.nombres} {ganador.apellidos} (Rifa #{ganador.numero_rifa})')
+
+            # Enviar correo al ganador
+            if ganador.correo:
+                try:
+                    send_mail(
+                        subject='🎉 ¡Has ganado la rifa!',
+                        message=(
+                            f'Hola {ganador.nombres},\n\n'
+                            f'¡Felicidades! Has sido elegido como ganador de la rifa "{rifa.titulo}".\n'
+                            f'Tu número ganador es: #{ganador.numero_rifa}.\n\n'
+                            f'Nos pondremos en contacto contigo para coordinar la entrega del premio.\n\n'
+                            f'Gracias por participar en TuChanchita.'
+                        ),
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[ganador.correo],
+                        fail_silently=False,
+                    )
+                    messages.info(request, f'Se envió un correo de notificación al ganador ({ganador.correo}).')
+                except Exception as e:
+                    messages.warning(request, f'No se pudo enviar el correo al ganador: {e}')
+            else:
+                messages.warning(request, 'El ganador no tiene un correo registrado, no se pudo enviar la notificación.')
+        else:
+            messages.warning(request, 'No hay participantes para esta rifa.')
+    
+    return redirect('detalle_rifa', rifa_id=rifa.id)
