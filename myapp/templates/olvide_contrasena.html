@@ -90,6 +90,22 @@
       font-size: 14px;
       color: #d1d5db;
     }
+
+    .back-button {
+      margin-top: 20px;
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background-color: #60a5fa;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    .back-button:hover {
+      background-color: #3b82f6;
+    }
   </style>
 </head>
 <body>
@@ -111,6 +127,10 @@
       {% if mensaje %}
       <p class="mensaje">{{ mensaje }}</p>
       {% endif %}
+
+      <!-- Botón volver al dashboard -->
+      <a href="{% url 'login' %}" class="back-button">← Volver al Login</a>
+
     </div>
   </main>
 

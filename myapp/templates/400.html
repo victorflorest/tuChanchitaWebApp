@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Solicitud incorrecta - TuChanchita</title>
+    <link rel="stylesheet" href="{% static 'styles/login.css' %}">
+    <style>
+        body {
+            background: linear-gradient(to bottom right, #4f46e5, #3b82f6);
+            color: white;
+            text-align: center;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .error-code {
+            font-size: 100px;
+            font-weight: bold;
+        }
+        .message {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .back-button {
+            padding: 12px 24px;
+            background-color: #60A5FA;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-code">400</div>
+    <div class="message">Solicitud incorrecta. Por favor verifica la información enviada.</div>
+</body>
+</html>

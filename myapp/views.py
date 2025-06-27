@@ -48,6 +48,13 @@ from .models import PreguntaTrivia, PuntajeTrivia
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from django.utils.timezone import now
+from django.db.models import Sum
+from django.shortcuts import render
+from .models import UserProfile, Expense, PaymentMethod
+from .decorators import session_login_required
+import re
+
 
 from .models import (
     UserProfile, Expense, PaymentMethod, Challenge,
@@ -139,27 +146,73 @@ def login_view(request):
             try:
                 user = UserProfile.objects.get(email=email)
 
+                # Si el usuario ya está bloqueado:
+                if user.is_blocked:
+                    form.add_error(None, 'Este usuario ha sido bloqueado por demasiados intentos fallidos. Revisa tu correo para más información.')
+                    return render(request, 'login.html', {'form': form})
+
                 if check_password(password, user.password):
+                    # LOGIN CORRECTO → resetear intentos y desbloquear por si acaso
+                    user.login_attempts = 0
+                    user.is_blocked = False
+                    user.save()
+
                     request.session['user_id'] = user.id
                     return redirect('dashboard')
+
                 else:
-                    form.add_error(None, 'Contraseña incorrecta')
+                    # Contraseña incorrecta → sumar intento
+                    user.login_attempts += 1
+                    user.save()
+
+                    # Si llegó al intento 3:
+                    if user.login_attempts >= 3:
+                        user.is_blocked = True
+                        user.save()
+
+                        # Enviar email de aviso
+                        send_mail(
+                            subject='🚨 Alerta de seguridad en TuChanchita',
+                            message=f'''
+Hola {user.first_name},
+
+Hemos detectado 4 intentos fallidos de inicio de sesión en tu cuenta.
+
+Por seguridad, tu cuenta ha sido temporalmente bloqueada.
+
+Si fuiste tú, te recomendamos restablecer tu contraseña.
+
+Si no fuiste tú, contáctanos de inmediato.
+
+Puedes recuperar el acceso usando "Olvidé mi contraseña".
+
+El equipo de TuChanchita 💰
+''',
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[user.email],
+                            fail_silently=False,
+                        )
+
+                        form.add_error(None, 'Has superado el número de intentos permitidos. Se ha enviado un correo con más información.')
+                    else:
+                        form.add_error(None, f'Contraseña incorrecta. Intento {user.login_attempts}/3.')
 
             except UserProfile.DoesNotExist:
-                form.add_error('email', 'No existe un usuario con este correo electrónico')
+                form.add_error('email', 'No existe un usuario con este correo electrónico.')
     else:
         form = LoginForm()
 
     return render(request, 'login.html', {'form': form})
-
 
 def logout_view(request):
     request.session.flush()
     return redirect('login')
 
 # ----------------- Dashboard -----------------
+@session_login_required
 def dashboard_view(request):
     user = UserProfile.objects.get(id=request.session['user_id'])
+
     hoy = now()
     inicio_mes = hoy.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     if hoy.month == 12:
@@ -182,7 +235,6 @@ def dashboard_view(request):
         'cards': cards,
         'puntos': user.points
     })
-
 # ----------------- Perfil -----------------
 def profile_view(request):
     user = UserProfile.objects.get(id=request.session['user_id'])
@@ -737,15 +789,15 @@ def solicitar_reset_contrasena(request):
             link = request.build_absolute_uri(f"/resetear/{uid}/{token}/")
 
             send_mail(
-                "Recupera tu contrase帽a",
-                f"Haz clic en el siguiente enlace para restablecer tu contrase帽a:\n{link}",
+                "Recupera tu contraseña",
+                f"Haz clic en el siguiente enlace para restablecer tu contraseña:\n{link}",
                 "gianfranco22.ft@gmail.com",
                 [user.email],
                 fail_silently=False,
             )
-            mensaje = "鉁?Se ha enviado un enlace a tu correo para restablecer tu contrase帽a."
+            mensaje = "Se ha enviado un enlace a tu correo para restablecer tu contraseña."
         except UserProfile.DoesNotExist:
-            mensaje = "鉂?No existe un usuario con ese correo."
+            mensaje = "No existe un usuario con ese correo."
     return render(request, "olvide_contrasena.html", {"mensaje": mensaje})
 
 def resetear_contrasena(request, uidb64, token):
@@ -761,17 +813,35 @@ def resetear_contrasena(request, uidb64, token):
             nueva_contrasena = request.POST.get("nueva_contrasena")
             confirmar_contrasena = request.POST.get("confirmar_contrasena")
 
-            if nueva_contrasena and nueva_contrasena == confirmar_contrasena:
-                user.password = make_password(nueva_contrasena)  # 馃憟 puedes cifrar si luego haces login
-                user.save()
-                mensaje = "鉁?Contrase帽a restablecida correctamente. Puedes iniciar sesi贸n."
-                return redirect("login")  # Aseg煤rate que esta ruta exista
+            if not nueva_contrasena or not confirmar_contrasena:
+                mensaje = "Debes completar ambos campos de contraseña."
+            elif nueva_contrasena != confirmar_contrasena:
+                mensaje = "Las contraseñas no coinciden."
             else:
-                mensaje = "鉂?Las contrase帽as no coinciden."
+                # Validación de la contraseña
+                if len(nueva_contrasena) < 8:
+                    mensaje = "La contraseña debe tener al menos 8 caracteres."
+                elif not re.search(r'[A-Z]', nueva_contrasena):
+                    mensaje = "La contraseña debe contener al menos una letra mayúscula."
+                elif not re.search(r'[0-9]', nueva_contrasena):
+                    mensaje = "La contraseña debe contener al menos un número."
+                elif not re.search(r'[!@#$%^&*()_+\-=\[\]{};\'\\:"|<>,./?]', nueva_contrasena):
+                    mensaje = "La contraseña debe contener al menos un carácter especial."
+                elif check_password(nueva_contrasena, user.password):
+                    mensaje = "La nueva contraseña no puede ser igual a la anterior."
+                else:
+                    # Guardar la nueva contraseña Y desbloquear usuario
+                    user.password = make_password(nueva_contrasena)
+                    user.login_attempts = 0
+                    user.is_blocked = False
+                    user.save()
+
+                    mensaje = "Contraseña restablecida correctamente. Puedes iniciar sesión."
+                    return redirect("login")
+
         return render(request, "resetear_contrasena.html", {"validlink": True, "mensaje": mensaje})
     else:
         return render(request, "resetear_contrasena.html", {"validlink": False})
-    
 #-----------------------------------
 #Eliminación de tarjeta
 
