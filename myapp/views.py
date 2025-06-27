@@ -54,6 +54,14 @@ from django.shortcuts import render
 from .models import UserProfile, Expense, PaymentMethod
 from .decorators import session_login_required
 import re
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
+from .models import Rifa
+from .forms import RifaForm
+from django.core.mail import send_mail
+from django.urls import reverse
+
 
 
 from .models import (
@@ -308,22 +316,45 @@ def add_card_view(request):
 def register_expense_view(request):
     user = UserProfile.objects.get(id=request.session['user_id'])
 
+    now = timezone.now()
+    inicio_mes = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    total_mes = Expense.objects.filter(
+        user=user,
+        date__gte=inicio_mes,
+        date__lte=now
+    ).aggregate(total=Sum('amount'))['total'] or 0
+
+    limite_mensual = getattr(user, 'monthly_limit', 0) or 0
+
     if request.method == 'POST':
         form = ExpenseForm(request.POST, user=user)
         if form.is_valid():
             gasto = form.save(commit=False)
             gasto.user = user
-            gasto.date = timezone.now()  # usa datetime completo
-            gasto.save()
+            gasto.date = timezone.now()
+            
+            # Calcular total con este gasto para verificar límite
+            nuevo_total = total_mes + gasto.amount
+            
+            if nuevo_total > limite_mensual:
+                # Aquí puedes enviar un mensaje o controlar en frontend (recomendado)
+                # Para enviar mensaje:
+                from django.contrib import messages
+                messages.warning(request, '⚠️ ¡Atención! Este gasto supera tu límite mensual.')
 
-            # Verifica y actualiza retos después del gasto
+            gasto.save()
             actualizar_retos_usuario(user)
 
             return redirect('dashboard')
     else:
         form = ExpenseForm(user=user)
 
-    return render(request, 'register_expense.html', {'form': form})
+    return render(request, 'register_expense.html', {
+        'form': form,
+        'total_mes': total_mes,
+        'limite_mensual': limite_mensual,
+    })
 
 # ----------------- Reportes -----------------
 def reports_view(request):
@@ -791,7 +822,7 @@ def solicitar_reset_contrasena(request):
             send_mail(
                 "Recupera tu contraseña",
                 f"Haz clic en el siguiente enlace para restablecer tu contraseña:\n{link}",
-                "gianfranco22.ft@gmail.com",
+                settings.DEFAULT_FROM_EMAIL,
                 [user.email],
                 fail_silently=False,
             )
@@ -861,3 +892,224 @@ def delete_card(request, card_id):
 
     # Redirigir al perfil
     return redirect('profile')  # Asegúrate de tener la URL correcta
+
+
+
+@session_login_required
+def crear_rifa(request):
+    user = UserProfile.objects.get(id=request.session['user_id'])
+
+    if request.method == 'POST':
+        form = RifaForm(request.POST, request.FILES)
+        if form.is_valid():
+            rifa = form.save(commit=False)
+            rifa.creado_por = user
+            rifa.save()
+
+            # ✅ Enviar correo al equipo para revisar
+            admin_link = request.build_absolute_uri(
+                reverse('revisar_rifa', args=[rifa.id])
+            )
+
+            send_mail(
+                subject='📬 Nueva solicitud de rifa en TuChanchita',
+                message=f"""
+¡Hola equipo!
+
+Un nuevo usuario ha enviado una solicitud para publicar una rifa.
+
+📌 Título: {rifa.titulo}
+👤 Usuario: {user.first_name} {user.last_name} ({user.email})
+📅 Fecha del sorteo: {rifa.fecha_sorteo}
+
+Pueden revisarla y aprobarla aquí:
+{admin_link}
+
+TuChanchita 💰
+""",
+                from_email=settings.DEFAULT_FROM_EMAIL,  # o settings.DEFAULT_FROM_EMAIL
+                recipient_list=[settings.DEFAULT_FROM_EMAIL],  # ← cambia por tu correo real
+                fail_silently=False,
+            )
+
+            return render(request, 'rifas/solicitud_enviada.html')
+    else:
+        form = RifaForm()
+    return render(request, 'rifas/crear_rifa.html', {'form': form})
+
+@session_login_required
+def ver_rifas(request):
+    user_id = request.session['user_id']
+
+    # Buscar las rifas en las que el usuario está participando (a través de la relación con Participante)
+    rifas = Rifa.objects.filter(participante__user__id=user_id).order_by('-fecha_creacion')
+
+    # Buscar todas las rifas activas (publicadas por otros usuarios)
+    otras_rifas = Rifa.objects.filter(estado='aprobado').exclude(creado_por_id=user_id).order_by('-fecha_creacion')
+
+    return render(request, 'rifas/ver_rifas.html', {'rifas': rifas, 'otras_rifas': otras_rifas})
+
+
+
+@staff_member_required
+def revisar_rifa(request, rifa_id):
+    rifa = get_object_or_404(Rifa, id=rifa_id)
+
+    mensaje = None
+
+    if request.method == 'POST':
+        accion = request.POST.get('accion')
+        if accion == 'aprobar':
+            rifa.estado = 'aprobado'
+            rifa.save()
+            mensaje = 'aprobada'
+        elif accion == 'rechazar':
+            rifa.estado = 'rechazado'
+            rifa.save()
+            mensaje = 'rechazada'
+        else:
+            mensaje = 'desconocida'
+
+    return render(request, 'rifas/revisar_rifa.html', {'rifa': rifa, 'mensaje': mensaje})
+
+@staff_member_required
+def revisar_rifa(request, rifa_id):
+    rifa = get_object_or_404(Rifa, id=rifa_id)
+
+    mensaje = None
+
+    if request.method == 'POST':
+        accion = request.POST.get('accion')
+        if accion == 'aprobar':
+            rifa.estado = 'aprobado'
+            rifa.save()
+            mensaje = 'aprobada'
+        elif accion == 'rechazar':
+            rifa.estado = 'rechazado'
+            rifa.save()
+            mensaje = 'rechazada'
+        else:
+            mensaje = 'desconocida'
+
+        return render(request, 'rifas/confirmacion_revision.html', {
+            'rifa': rifa,
+            'mensaje': mensaje,
+        })
+
+    return render(request, 'rifas/revisar_rifa.html', {'rifa': rifa})
+
+
+@session_login_required
+def mis_rifas(request):
+    user_id = request.session['user_id']
+    rifas = Rifa.objects.filter(creado_por_id=user_id).order_by('-fecha_creacion')
+    return render(request, 'rifas/mis_rifas.html', {'rifas': rifas})
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Rifa, Participante
+from .forms import ParticipanteForm
+
+def detalle_rifa(request, rifa_id):
+    rifa = get_object_or_404(Rifa, id=rifa_id)
+    email = request.GET.get('email', '')  # obtiene el correo de búsqueda desde el GET
+
+    if request.method == 'POST':
+        form = ParticipanteForm(request.POST, email_search=email)
+        if form.is_valid():
+            participante = form.save(commit=False)
+            participante.rifa = rifa
+            participante.save()
+            return redirect('detalle_rifa', rifa_id=rifa.id)
+    else:
+        form = ParticipanteForm(email_search=email)  # pasa el email_search aquí
+
+    participantes = Participante.objects.filter(rifa=rifa)
+
+    return render(request, 'rifas/detalle_rifa.html', {
+        'rifa': rifa,
+        'form': form,
+        'participantes': participantes,
+    })
+
+
+import openpyxl
+from django.http import HttpResponse
+from .models import Participante
+
+def exportar_participantes_excel(request, rifa_id):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Participantes"
+
+    encabezados = ['Nombres', 'Apellidos', 'DNI', 'Correo', 'Celular', 'Medio de Pago', 'Nro Operación', 'Fecha de Pago', 'Nro de Rifa']
+    ws.append(encabezados)
+
+    participantes = Participante.objects.filter(rifa_id=rifa_id)
+    for p in participantes:
+        ws.append([
+            p.nombres,
+            p.apellidos,
+            p.dni,
+            p.correo,
+            p.celular,
+            p.metodo_pago,
+            p.numero_operacion,
+            p.fecha_pago.strftime('%d/%m/%Y'),
+            p.numero_rifa,
+        ])
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename=participantes_rifa_{rifa_id}.xlsx'
+    wb.save(response)
+    return response
+
+import random
+from django.contrib import messages
+from django.shortcuts import redirect
+
+
+def detalle_rifa_usuario(request, rifa_id):
+    rifa = get_object_or_404(Rifa, id=rifa_id, estado='aprobado')  # opcional: solo rifas aprobadas
+    return render(request, 'rifas/detalle_rifa_usuario.html', {'rifa': rifa})
+
+def elegir_ganador(request, rifa_id):
+    rifa = get_object_or_404(Rifa, id=rifa_id)
+    
+    if rifa.ganador:
+        messages.error(request, f'La rifa ya tiene un ganador: {rifa.ganador.nombres} {rifa.ganador.apellidos}')
+    else:
+        participantes = Participante.objects.filter(rifa=rifa)
+        if participantes.exists():
+            ganador = random.choice(list(participantes))
+            rifa.ganador = ganador
+            rifa.save()
+
+            # Mensaje para el admin
+            messages.success(request, f'🎉 Ganador elegido: {ganador.nombres} {ganador.apellidos} (Rifa #{ganador.numero_rifa})')
+
+            # Enviar correo al ganador
+            if ganador.correo:
+                try:
+                    send_mail(
+                        subject='🎉 ¡Has ganado la rifa!',
+                        message=(
+                            f'Hola {ganador.nombres},\n\n'
+                            f'¡Felicidades! Has sido elegido como ganador de la rifa "{rifa.titulo}".\n'
+                            f'Tu número ganador es: #{ganador.numero_rifa}.\n\n'
+                            f'Nos pondremos en contacto contigo para coordinar la entrega del premio.\n\n'
+                            f'Gracias por participar en TuChanchita.'
+                        ),
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[ganador.correo],
+                        fail_silently=False,
+                    )
+                    messages.info(request, f'Se envió un correo de notificación al ganador ({ganador.correo}).')
+                except Exception as e:
+                    messages.warning(request, f'No se pudo enviar el correo al ganador: {e}')
+            else:
+                messages.warning(request, 'El ganador no tiene un correo registrado, no se pudo enviar la notificación.')
+        else:
+            messages.warning(request, 'No hay participantes para esta rifa.')
+    
+    return redirect('detalle_rifa', rifa_id=rifa.id)

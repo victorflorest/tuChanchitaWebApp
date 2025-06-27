@@ -26,5 +26,14 @@ urlpatterns = [
     path("olvide-contrasena/", views.solicitar_reset_contrasena, name="olvide_contrasena"),
     path("resetear/<uidb64>/<token>/", views.resetear_contrasena, name="resetear_contrasena"),
     path('delete_card/<int:card_id>/', views.delete_card, name='delete_card'),
+    path('rifas/crear/', views.crear_rifa, name='crear_rifa'),
+    path('rifas/', views.ver_rifas, name='ver_rifas'),
+    path('rifas/revisar/<int:rifa_id>/', views.revisar_rifa, name='revisar_rifa'),
+    path('mis-rifas/', views.mis_rifas, name='mis_rifas'),
+    path('rifas/<int:rifa_id>/', views.detalle_rifa, name='detalle_rifa'),
+    path('rifa/<int:rifa_id>/exportar_excel/', views.exportar_participantes_excel, name='exportar_participantes_excel'),
+    path('rifa/<int:rifa_id>/ganador/', views.elegir_ganador, name='elegir_ganador'),
+    path('rifas/detalle/<int:rifa_id>/', views.detalle_rifa_usuario, name='detalle_rifa_usuario'),
+
 
 ]

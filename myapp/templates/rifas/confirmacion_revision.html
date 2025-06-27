@@ -1,0 +1,101 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Resultado de revisión - TuChanchita{% endblock %}
+
+{% block extra_css %}
+<style>
+  nav { display: none !important; }  /* 👈 Oculta el navbar solo en esta vista */
+
+  .bubble-container {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    animation: floatBubble infinite ease-in-out;
+    opacity: 0.25;
+  }
+  @keyframes floatBubble {
+    0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+    50% { transform: translate(-20px, -60px) scale(1.2); opacity: 0.5; }
+    100% { transform: translate(20px, -120px) scale(1); opacity: 0.1; }
+  }
+  .confirm-container {
+    position: relative;
+    z-index: 2;
+    max-width: 500px;
+    margin: 80px auto;
+    background-color: rgba(255, 255, 255, 0.07);
+    color: white;
+    border-radius: 15px;
+    padding: 40px 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    backdrop-filter: blur(12px);
+    text-align: center;
+  }
+  .confirm-container h2 {
+    color: #90caf9;
+    margin-bottom: 20px;
+  }
+  .confirm-container p {
+    font-size: 16px;
+    margin-bottom: 30px;
+  }
+  .confirm-container a {
+    display: inline-block;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s ease;
+  }
+  .confirm-container a:hover {
+    background-color: #43A047;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
+
+<div class="confirm-container">
+  {% if mensaje == 'aprobada' %}
+    <h2>✅ Rifa Aprobada</h2>
+    <p>La rifa <strong>{{ rifa.titulo }}</strong> ha sido aprobada correctamente.</p>
+  {% elif mensaje == 'rechazada' %}
+    <h2>❌ Rifa Rechazada</h2>
+    <p>La rifa <strong>{{ rifa.titulo }}</strong> ha sido rechazada.</p>
+  {% else %}
+    <h2>⚠️ Acción desconocida</h2>
+    <p>No se pudo procesar la solicitud. Por favor, inténtalo nuevamente.</p>
+  {% endif %}
+  <a href="/admin/">Volver al panel de administración</a>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("bubble-container");
+    for (let i = 0; i < 25; i++) {
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      const size = Math.floor(Math.random() * 100) + 40;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.top = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${(Math.random() * 6 + 4).toFixed(1)}s`;
+      container.appendChild(bubble);
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Solicitud enviada - TuChanchita{% endblock %}
+
+{% block extra_css %}
+<style>
+  .bubble-container {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    animation: floatBubble infinite ease-in-out;
+    opacity: 0.25;
+  }
+
+  @keyframes floatBubble {
+    0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+    50% { transform: translate(-20px, -60px) scale(1.2); opacity: 0.5; }
+    100% { transform: translate(20px, -120px) scale(1); opacity: 0.1; }
+  }
+
+  .success-container {
+    position: relative;
+    z-index: 2;
+    max-width: 500px;
+    margin: 100px auto;
+    background-color: rgba(255, 255, 255, 0.07);
+    color: white;
+    border-radius: 15px;
+    padding: 40px 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    backdrop-filter: blur(12px);
+    text-align: center;
+  }
+
+  .success-container h2 {
+    font-size: 24px;
+    color: #4caf50;
+    margin-bottom: 20px;
+  }
+
+  .success-container p {
+    font-size: 16px;
+    margin-bottom: 30px;
+  }
+
+  .success-container a {
+    background-color: #2196F3;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+
+  .success-container a:hover {
+    background-color: #1976D2;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
+
+<div class="success-container">
+  <h2>🎉 ¡Solicitud enviada con éxito!</h2>
+  <p>Tu solicitud de rifa ha sido enviada. El equipo de TuChanchita la revisará pronto.</p>
+  <a href="{% url 'ver_rifas' %}">🔍 Ver rifas activas</a>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("bubble-container");
+    for (let i = 0; i < 25; i++) {
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      const size = Math.floor(Math.random() * 100) + 40;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.top = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${(Math.random() * 6 + 4).toFixed(1)}s`;
+      container.appendChild(bubble);
+    }
+  });
+</script>
+{% endblock %}

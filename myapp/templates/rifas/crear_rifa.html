@@ -1,0 +1,66 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}Crear Rifa - TuChanchita{% endblock %}
+
+{% block extra_css %}
+<style>
+  body { overflow-x: hidden; }
+  .bubble-container { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .bubble { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.08); animation: floatBubble infinite ease-in-out; opacity: 0.3; }
+  @keyframes floatBubble { 0% { transform: translate(0, 0) scale(1); opacity: 0.3; } 50% { transform: translate(-20px, -60px) scale(1.2); opacity: 0.5; } 100% { transform: translate(20px, -120px) scale(1); opacity: 0.1; } }
+  .form-wrapper { position: relative; z-index: 2; min-height: calc(100vh - 100px); display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+  .form-container { width: 100%; max-width: 600px; background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(10px); border-radius: 15px; padding: 40px 30px; box-shadow: 0 8px 20px rgba(0,0,0,0.25); color: white; }
+  .form-container h2 { text-align: center; color: #90caf9; margin-bottom: 25px; }
+  .form-container label { display: block; margin-top: 15px; font-weight: bold; }
+  .form-container input, .form-container textarea, .form-container select { width: 100%; padding: 10px 12px; margin-top: 5px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.15); color: white; font-size: 14px; box-sizing: border-box; }
+  .form-container textarea { resize: none; }  /* 👈 evita redimensionar descripción */
+  .form-container input::placeholder, .form-container textarea::placeholder { color: rgba(255, 255, 255, 0.6); }
+  .form-container button { margin-top: 30px; width: 100%; padding: 12px; background-color: #4CAF50; border: none; border-radius: 8px; color: white; font-size: 16px; cursor: pointer; font-weight: bold; transition: background 0.3s ease; }
+  .form-container button:hover { background-color: #43a047; }
+  .form-container input[type="file"] { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.3); padding: 8px; border-radius: 8px; color: white; font-size: 13px; }
+  .form-container input[type="file"]::file-selector-button { background-color: #4CAF50; border: none; padding: 6px 12px; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; transition: background-color 0.3s ease; }
+  .form-container input[type="file"]::file-selector-button:hover { background-color: #43a047; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
+
+<div class="form-wrapper">
+  <div class="form-container">
+    <h2>Crear nueva Rifa</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      {% for field in form.visible_fields %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% for error in field.errors %}
+          <p style="color: #fca5a5; font-size: 13px;">{{ error }}</p>
+        {% endfor %}
+      {% endfor %}
+
+      <button type="submit">Enviar Solicitud</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("bubble-container");
+    for (let i = 0; i < 20; i++) {
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      const size = Math.floor(Math.random() * 120) + 30;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.top = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${(Math.random() * 10 + 4).toFixed(1)}s`;
+      container.appendChild(bubble);
+    }
+  });
+</script>
+{% endblock %}

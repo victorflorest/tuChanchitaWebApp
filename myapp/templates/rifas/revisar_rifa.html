@@ -1,0 +1,163 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Revisión de Rifa - TuChanchita{% endblock %}
+
+{% block extra_css %}
+<style>
+  nav { display: none !important; }  /* Oculta el navbar */
+
+  .bubble-container {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    animation: floatBubble infinite ease-in-out;
+    opacity: 0.25;
+  }
+
+  @keyframes floatBubble {
+    0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+    50% { transform: translate(-20px, -60px) scale(1.2); opacity: 0.5; }
+    100% { transform: translate(20px, -120px) scale(1); opacity: 0.1; }
+  }
+
+  .review-container {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    margin: 60px auto;
+    background-color: rgba(255, 255, 255, 0.07);
+    color: white;
+    border-radius: 15px;
+    padding: 40px 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    backdrop-filter: blur(12px);
+  }
+
+  .review-container h2 {
+    text-align: center;
+    color: #90caf9;
+    margin-bottom: 25px;
+  }
+
+  .review-container p {
+    font-size: 15px;
+    margin: 10px 0;
+  }
+
+  .review-container img {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+    margin: 15px auto;
+  }
+
+  .review-container form {
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  .review-container button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    margin: 0 10px;
+    transition: background-color 0.3s ease;
+  }
+
+  .review-container button[name="accion"][value="aprobar"] {
+    background-color: #4CAF50;
+  }
+
+  .review-container button[name="accion"][value="aprobar"]:hover {
+    background-color: #43A047;
+  }
+
+  .review-container button[name="accion"][value="rechazar"] {
+    background-color: #f44336;
+  }
+
+  .review-container button[name="accion"][value="rechazar"]:hover {
+    background-color: #e53935;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
+
+<div class="review-container">
+  <h2>🔎 Revisión de solicitud de rifa</h2>
+
+  {% if mensaje %}
+    {% if mensaje == 'aprobada' %}
+      <p style="color: #4CAF50; font-weight: bold; text-align: center;">✅ La rifa ha sido aprobada correctamente.</p>
+    {% elif mensaje == 'rechazada' %}
+      <p style="color: #f44336; font-weight: bold; text-align: center;">❌ La rifa ha sido rechazada.</p>
+    {% else %}
+      <p style="color: orange; font-weight: bold; text-align: center;">⚠️ Acción desconocida.</p>
+    {% endif %}
+  {% endif %}
+
+  <p><strong>Título:</strong> {{ rifa.titulo }}</p>
+  <p><strong>Descripción:</strong> {{ rifa.descripcion }}</p>
+  <p><strong>Fecha del sorteo:</strong> {{ rifa.fecha_sorteo }}</p>
+  <p><strong>Precio por número:</strong> S/. {{ rifa.precio_numero }}</p>
+  <p><strong>Número de celular:</strong> {{ rifa.numero_celular }}</p>
+  <p><strong>DNI:</strong> {{ rifa.dni }}</p>
+
+  <h4 style="text-align:center; margin-top:20px;">🎁 Foto del premio</h4>
+  {% if rifa.foto_premio %}
+    <img src="{{ rifa.foto_premio.url }}" alt="Foto del premio">
+  {% else %}
+    <p style="color: gray; text-align:center;">No se ha subido una imagen del premio.</p>
+  {% endif %}
+
+  <h4 style="text-align:center; margin-top:20px;">📷 QR de Yape</h4>
+  <img src="{{ rifa.qr_yape.url }}" alt="QR de Yape">
+
+  <h4 style="text-align:center; margin-top:20px;">🪪 Foto del DNI</h4>
+  <img src="{{ rifa.foto_dni.url }}" alt="Foto del DNI">
+
+  <h4 style="text-align:center; margin-top:20px;">🤳 Selfie con DNI</h4>
+  <img src="{{ rifa.selfie_con_dni.url }}" alt="Selfie con DNI">
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" name="accion" value="aprobar">✅ Aprobar</button>
+    <button type="submit" name="accion" value="rechazar">❌ Rechazar</button>
+  </form>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("bubble-container");
+    for (let i = 0; i < 25; i++) {
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      const size = Math.floor(Math.random() * 100) + 40;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.top = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${(Math.random() * 6 + 4).toFixed(1)}s`;
+      container.appendChild(bubble);
+    }
+  });
+</script>
+{% endblock %}

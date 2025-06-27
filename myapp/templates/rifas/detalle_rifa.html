@@ -1,0 +1,291 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}Detalle de Rifa - TuChanchita{% endblock %}
+
+{% block extra_css %}
+<style>
+  .bubble-container {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    animation: floatBubble infinite ease-in-out;
+    opacity: 0.25;
+  }
+
+  @keyframes floatBubble {
+    0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+    50% { transform: translate(-20px, -60px) scale(1.2); opacity: 0.5; }
+    100% { transform: translate(20px, -120px) scale(1); opacity: 0.1; }
+  }
+
+  .detalle-section {
+    position: relative;
+    z-index: 2;
+    padding: 40px 20px;
+    max-width: 720px;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    color: white;
+  }
+
+  h2, h3 {
+    text-align: center;
+    color: #90CAF9;
+  }
+
+  .detalle-section img {
+  display: block;
+  width: 250px;       /* 👈 Ancho fijo */
+  height: 250px;      /* 👈 Alto fijo para cuadrado */
+  object-fit: cover;  /* 👈 Ajusta la imagen manteniendo proporciones sin deformarla */
+  margin: 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  } 
+
+  .detalle-section p {
+    margin: 10px 0;
+    font-size: 15px;
+  }
+
+  .busqueda-form p,
+  .busqueda-form button {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .busqueda-form input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+  }
+
+  .busqueda-form button {
+    background: #1976D2;
+    color: white;
+    padding: 10px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  .participante-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  .participante-form p {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .participante-form input,
+  .participante-form select {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+    max-width: 100%;  /* evita desbordes */
+    width: 100%;      /* asegura consistencia */
+    box-sizing: border-box;
+  }
+
+  .participante-form button[type="submit"] {
+    grid-column: span 2;
+    background: #4CAF50;
+    color: white;
+    padding: 10px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  /* Cambia a una columna en pantallas menores a 900px */
+  @media (max-width: 900px) {
+    .participante-form {
+      grid-template-columns: 1fr;
+    }
+    .participante-form button[type="submit"] {
+      grid-column: span 1;
+    }
+  }
+
+  .acciones {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+  }
+
+  .acciones a {
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+  }
+
+  .tarjetas-participantes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .tarjeta {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 15px 20px;
+    width: 280px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: transform 0.2s ease;
+  }
+
+  .tarjeta:hover {
+    transform: translateY(-4px);
+  }
+
+  .tarjeta p {
+    margin: 5px 0;
+    font-size: 14px;
+  }
+
+  .volver {
+    text-align: center;
+    margin-top: 25px;
+  }
+
+  .volver a {
+    color: #8ab4f8;
+    text-decoration: underline;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bubble-container" id="bubble-container"></div>
+
+<section class="detalle-section">
+  <h2>{{ rifa.titulo }}</h2>
+
+  {% if rifa.foto_premio %}
+    <img src="{{ rifa.foto_premio.url }}" alt="Foto del premio">
+  {% endif %}
+
+  <p><strong>Descripción:</strong> {{ rifa.descripcion }}</p>
+  <p><strong>Precio por número:</strong> S/. {{ rifa.precio_numero }}</p>
+  <p><strong>Fecha Sorteo:</strong> {{ rifa.fecha_sorteo }}</p>
+  <p><strong>Estado:</strong> {{ rifa.get_estado_display }}</p>
+  <p><strong>Celular:</strong> {{ rifa.numero_celular }}</p>
+
+  {% if rifa.ganador %}
+  <div style="background-color: rgba(76, 175, 80, 0.3); padding: 15px; border-radius: 12px; margin: 20px 0; text-align: center;">
+    <h3>🏆 Ganador de la Rifa:</h3>
+    <p style="font-size: 18px;"><strong>{{ rifa.ganador.nombres }} {{ rifa.ganador.apellidos }}</strong></p>
+    <p>Número de rifa: #{{ rifa.ganador.numero_rifa }}</p>
+  </div>
+  {% endif %}
+
+  <hr>
+  <h3>🔎 Buscar Usuario</h3>
+
+  <form method="get" action="{% url 'detalle_rifa' rifa.id %}" class="busqueda-form">
+    {% csrf_token %}
+    <p>
+      <label for="email">Buscar por Correo</label>
+      <input type="email" name="email" id="email" placeholder="Buscar por correo electrónico" value="{{ request.GET.email }}">
+    </p>
+    <button type="submit">🔍 Buscar</button>
+  </form>
+
+  <hr>
+
+  <h3>📝 Añadir Participante</h3>
+
+  <form method="post" class="participante-form">
+    {% csrf_token %}
+    {% for field in form %}
+      <p>
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {% if field.name == 'fecha_pago' %}
+          <input type="date" name="fecha_pago" required id="id_fecha_pago" class="form-control">
+        {% else %}
+          {{ field }}
+        {% endif %}
+        {% for error in field.errors %}<span style="color:red">{{ error }}</span>{% endfor %}
+      </p>
+    {% endfor %}
+    <button type="submit">✅ Agregar Participante</button>
+  </form>
+
+  <div class="acciones">
+    <a href="{% url 'exportar_participantes_excel' rifa.id %}" style="background-color: #1976D2;">📥 Exportar a Excel</a>
+    <a href="{% url 'elegir_ganador' rifa.id %}" 
+   style="background-color: #43A047;"
+   onclick="return confirm('¿Estás seguro que quieres elegir un ganador? Esta acción es irreversible y solo puede hacerse una vez.')">
+   🎯 Elegir Ganador
+</a>
+  </div>
+
+  <h3>👥 Participantes</h3>
+  <div class="tarjetas-participantes">
+    {% for p in participantes %}
+      <div class="tarjeta">
+        <p><strong>#{{ p.numero_rifa }}</strong></p>
+        <p><strong>{{ p.nombres }} {{ p.apellidos }}</strong></p>
+        <p>DNI: {{ p.dni }}</p>
+        <p>📞 {{ p.celular }}</p>
+        <p>💳 {{ p.metodo_pago }} | Nº Op: {{ p.numero_operacion }}</p>
+      </div>
+    {% empty %}
+      <p style="text-align: center; color: #ccc;">No hay participantes registrados.</p>
+    {% endfor %}
+  </div>
+
+  <div class="volver">
+    <a href="{% url 'mis_rifas' %}">⬅ Volver a mis rifas</a>
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("bubble-container");
+    for (let i = 0; i < 20; i++) {
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      const size = Math.floor(Math.random() * 120) + 30;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.top = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${(Math.random() * 8 + 4).toFixed(1)}s`;
+      container.appendChild(bubble);
+    }
+  });
+</script>
+{% endblock %}

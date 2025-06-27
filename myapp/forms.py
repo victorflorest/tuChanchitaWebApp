@@ -2,8 +2,10 @@ from django import forms
 from .models import UserProfile
 from django import forms
 from .models import PaymentMethod
+from .models import Participante
 import re
 import requests
+from .models import Rifa
 
 class PaymentMethodForm(forms.ModelForm):
     class Meta:
@@ -211,6 +213,7 @@ class ExpenseForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'input-field'}),
             'store_name': forms.TextInput(attrs={'placeholder': 'Tienda o servicio', 'class': 'input-field'}),
         }
+    
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -233,3 +236,46 @@ class InvestmentForm(forms.Form):
 
 class UpdateLimitForm(forms.Form):
     nuevo_limite = forms.FloatField(label='Nuevo límite mensual', min_value=0)
+
+class RifaForm(forms.ModelForm):
+    class Meta:
+        model = Rifa
+        fields = [
+            'titulo',
+            'descripcion',
+            'precio_numero',      
+            'fecha_sorteo',
+            'foto_premio',
+            'qr_yape',
+            'dni',
+            'numero_celular',
+            'foto_dni',
+            'selfie_con_dni',
+        ]
+        widgets = {
+            'fecha_sorteo': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+
+
+class ParticipanteForm(forms.ModelForm):
+    class Meta:
+        model = Participante
+        fields = ['nombres', 'apellidos', 'correo', 'dni', 'celular', 'numero_operacion', 'metodo_pago', 'fecha_pago', 'user']
+
+    user = forms.ModelChoiceField(
+        queryset=UserProfile.objects.none(),  # Inicialmente no muestra nada
+        required=True,
+        label="Seleccionar Usuario",
+        empty_label="Buscar por Correo",
+        widget=forms.Select(attrs={'class': 'input-field'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        email_search = kwargs.pop('email_search', '')  # obtiene el argumento personalizado
+        super().__init__(*args, **kwargs)
+
+        if email_search:
+            self.fields['user'].queryset = UserProfile.objects.filter(email__icontains=email_search)
+        else:
+            self.fields['user'].queryset = UserProfile.objects.none()

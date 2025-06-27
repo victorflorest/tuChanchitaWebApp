@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-l5-gipjy#wvexu^k!0=^d7nndbi93@!i@0m-r0(m(psoxm$jt@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['jbom.pythonanywhere.com', 'localhost', '127.0.0.1']
 
@@ -133,9 +133,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'gianfranco22.ft@gmail.com'
-EMAIL_HOST_PASSWORD = 'bewa nszi jxpa dahr'
+EMAIL_HOST_USER = 'tuchanchitapp@gmail.com'
+EMAIL_HOST_PASSWORD = 'cuaq tmuc gqly ttwr'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 TWELVE_API_KEY = ""
 OPENAI_API_KEY = ''
+
+LOGIN_URL = '/login/'
